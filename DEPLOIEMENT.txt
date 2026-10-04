@@ -1,0 +1,12 @@
+JESS HOLDING — DOSSIER NETLIFY
+
+Ce dossier est autonome et ne nécessite aucune commande de compilation.
+
+Déploiement manuel :
+1. Ouvrir Netlify Drop ou l’espace Deploys de votre site.
+2. Glisser ce dossier complet, ou l’archive ZIP qui le contient.
+3. Vérifier que index.html se trouve bien à la racine du dépôt.
+
+Le routage des pages internes est pris en charge par _redirects et netlify.toml.
+Les offres, prix, dates, logements et campagnes portant la mention « démo » ou
+« fictif » doivent être remplacés ou confirmés avant une mise en production réelle.
