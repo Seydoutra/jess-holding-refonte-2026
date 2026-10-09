@@ -8,5 +8,6 @@ Déploiement manuel :
 3. Vérifier que index.html se trouve bien à la racine du dépôt.
 
 Le routage des pages internes est pris en charge par _redirects et netlify.toml.
+Les données éditables (tarifs, départs, logements, campagnes…) sont dans js/data.js.
 Les offres, prix, dates, logements et campagnes portant la mention « démo » ou
 « fictif » doivent être remplacés ou confirmés avant une mise en production réelle.

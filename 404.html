@@ -1,36 +1,8 @@
 <!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script>document.write('<base href="'+(location.hostname.endsWith('github.io')?'/jess-holding-refonte-2026/':'/')+'">')</script>
-  <meta name="description" content="Jess Holding simplifie vos projets de voyage, logistique, beauté, séjour et construction depuis Conakry.">
-  <meta name="theme-color" content="#3b0c18">
-  <title>Jess Holding — Vos projets, simplement</title>
-  <link rel="icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=11">
-</head>
-<body>
-  <a class="skip" href="#main">Aller au contenu</a>
-  <header id="header">
-    <a class="brand" href="/" aria-label="Jess Holding — Accueil"><span class="brand-mark">JH</span><span>JESS HOLDING<small>Conakry · Guinée</small></span></a>
-    <button class="menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span><i>Menu</i></button>
-    <nav id="nav" aria-label="Navigation principale">
-      <a href="/#groupe">Le groupe</a>
-      <details><summary>Services</summary><div class="mega"><a href="/voyages-services/voyages"><b>Voyager</b><small>Billets, séjours et visa</small></a><a href="/voyages-services/colis"><b>Expédier</b><small>Colis et suivi</small></a><a href="/paradise/beaute"><b>Beauté &amp; bien-être</b><small>Salon, spa et onglerie</small></a><a href="/paradise/appartements"><b>Séjourner</b><small>Appartements à Conakry</small></a><a href="/paradise/btp"><b>Construire</b><small>BTP et rénovation</small></a><a href="/jess-children-women"><b>Agir</b><small>Femmes et enfants</small></a></div></details>
-      <a href="/actualites">Actualités</a>
-      <div class="nav-tools"><button class="lang-toggle" type="button" aria-label="Passer le site en anglais">EN</button><button class="theme-toggle" type="button" aria-label="Activer le mode sombre">Contraste</button><button class="motion-toggle" type="button" aria-pressed="false">Mouvement</button></div><a class="cta small" href="tel:+224613131323">+224 613 13 13 23</a>
-    </nav>
-  </header>
-  <main id="main"></main>
-  <nav class="dock" aria-label="Actions rapides"><a href="/voyages-services/voyages">Voyage</a><a href="/voyages-services/colis">Colis</a><a href="/paradise/beaute">Beauté</a><a href="/paradise/appartements">Séjour</a><a href="https://wa.me/224613131323?text=Bonjour%20Jess%20Holding" target="_blank" rel="noopener">WhatsApp</a></nav>
-  <footer>
-    <div class="foot-brand"><span class="footer-wordmark">JESS<br>HOLDING</span><p>Vos projets avancent.<br>Nous restons à vos côtés.</p></div>
-    <div><b>Nos univers</b><a href="/voyages-services">Jess Voyages &amp; Services</a><a href="/voyages-services/colis">Expédition de colis</a><a href="/paradise">Jess Paradise</a><a href="/paradise/appartements">Appartements &amp; BTP</a><a href="/jess-children-women">Jess Children and Women</a></div>
-    <div><b>Nous joindre</b><span>Nongo, Conakry, République de Guinée</span><a href="tel:+224613131323">+224 613 13 13 23</a></div>
-    <div><b>Informations</b><a href="/contact">Contact</a><a href="/mentions-legales">Mentions légales</a><a href="/politique-confidentialite">Confidentialité</a><span>Horaires et réseaux sociaux : à confirmer</span></div>
-  </footer>
-  <script src="i18n.js?v=11"></script>
-  <script src="app.js?v=11"></script>
-</body>
-</html>
+<html lang="fr"><head><meta charset="utf-8"><title>Jess Holding</title>
+<script>
+/* Redirige les anciennes adresses (ex. /voyages-services/colis) vers le routeur du site */
+var p = location.pathname, base = '/';
+if (location.hostname.endsWith('github.io')) { base = '/' + p.split('/')[1] + '/'; p = p.slice(base.length - 1); }
+location.replace(base + '#' + (p.replace(/\.html$/, '').replace(/\/+$/, '') || '/'));
+</script></head><body></body></html>

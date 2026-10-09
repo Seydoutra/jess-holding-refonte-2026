@@ -2,35 +2,98 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script>document.write('<base href="'+(location.hostname.endsWith('github.io')?'/jess-holding-refonte-2026/':'/')+'">')</script>
-  <meta name="description" content="Jess Holding simplifie vos projets de voyage, logistique, beauté, séjour et construction depuis Conakry.">
-  <meta name="theme-color" content="#3b0c18">
-  <title>Jess Holding — Vos projets, simplement</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Jess Holding — Tous vos projets, un seul groupe</title>
+  <meta name="description" content="Jess Holding, groupe multiservices à Conakry : voyages, envoi de colis, beauté, showroom, appartements, BTP et actions solidaires avec Jess Children and Women.">
+  <meta name="theme-color" content="#2a0a11">
   <link rel="icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/app.css">
 </head>
-<body>
+<body data-u="holding">
   <a class="skip" href="#main">Aller au contenu</a>
-  <header id="header">
-    <a class="brand" href="/" aria-label="Jess Holding — Accueil"><span class="brand-mark">JH</span><span>JESS HOLDING<small>Conakry · Guinée</small></span></a>
-    <button class="menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span><i>Menu</i></button>
-    <nav id="nav" aria-label="Navigation principale">
-      <a href="/#groupe">Le groupe</a>
-      <details><summary>Services</summary><div class="mega"><a href="/voyages-services/voyages"><b>Voyager</b><small>Billets, séjours et visa</small></a><a href="/voyages-services/colis"><b>Expédier</b><small>Colis et suivi</small></a><a href="/paradise/beaute"><b>Beauté &amp; bien-être</b><small>Salon, spa et onglerie</small></a><a href="/paradise/appartements"><b>Séjourner</b><small>Appartements à Conakry</small></a><a href="/paradise/btp"><b>Construire</b><small>BTP et rénovation</small></a><a href="/jess-children-women"><b>Agir</b><small>Femmes et enfants</small></a></div></details>
-      <a href="/actualites">Actualités</a>
-      <div class="nav-tools"><button class="lang-toggle" type="button" aria-label="Passer le site en anglais">EN</button><button class="theme-toggle" type="button" aria-label="Activer le mode sombre">Contraste</button><button class="motion-toggle" type="button" aria-pressed="false">Mouvement</button></div><a class="cta small" href="tel:+224613131323">+224 613 13 13 23</a>
+  <div class="progress" aria-hidden="true"><i></i></div>
+
+  <header class="hdr" id="hdr">
+    <a class="logo" href="#/" aria-label="Jess Holding — accueil">
+      <span class="logo-mark">JH</span>
+      <span class="logo-txt"><b>Jess Holding</b><small data-hdr-sub>Conakry · Guinée</small></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Navigation principale">
+      <div class="nav-item">
+        <button class="nav-link" aria-expanded="false" aria-controls="mega" data-mega>Nos univers <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <div class="mega" id="mega" hidden></div>
+      </div>
+      <a class="nav-link" href="#/groupe">Le groupe</a>
+      <a class="nav-link" href="#/actualites">Actualités</a>
+      <a class="nav-link" href="#/contact">Contact</a>
     </nav>
+    <div class="hdr-tools">
+      <button class="search-btn" data-cmdk aria-label="Rechercher un service (Ctrl+K)">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Que cherchez-vous ?</span><kbd>⌘K</kbd>
+      </button>
+      <button class="icon-btn" data-theme-toggle aria-label="Basculer le thème clair / sombre">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" fill="currentColor"/></svg>
+      </button>
+      <a class="btn btn-sm hdr-cta" href="#/contact">Parler à un conseiller</a>
+      <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
+    </div>
   </header>
-  <main id="main"></main>
-  <nav class="dock" aria-label="Actions rapides"><a href="/voyages-services/voyages">Voyage</a><a href="/voyages-services/colis">Colis</a><a href="/paradise/beaute">Beauté</a><a href="/paradise/appartements">Séjour</a><a href="https://wa.me/224613131323?text=Bonjour%20Jess%20Holding" target="_blank" rel="noopener">WhatsApp</a></nav>
-  <footer>
-    <div class="foot-brand"><span class="footer-wordmark">JESS<br>HOLDING</span><p>Vos projets avancent.<br>Nous restons à vos côtés.</p></div>
-    <div><b>Nos univers</b><a href="/voyages-services">Jess Voyages &amp; Services</a><a href="/voyages-services/colis">Expédition de colis</a><a href="/paradise">Jess Paradise</a><a href="/paradise/appartements">Appartements &amp; BTP</a><a href="/jess-children-women">Jess Children and Women</a></div>
-    <div><b>Nous joindre</b><span>Nongo, Conakry, République de Guinée</span><a href="tel:+224613131323">+224 613 13 13 23</a></div>
-    <div><b>Informations</b><a href="/contact">Contact</a><a href="/mentions-legales">Mentions légales</a><a href="/politique-confidentialite">Confidentialité</a><span>Horaires et réseaux sociaux : à confirmer</span></div>
+
+  <main id="main" tabindex="-1"></main>
+
+  <footer class="ftr">
+    <div class="ftr-top">
+      <div class="ftr-brand">
+        <span class="ftr-word">Jess<br><em>Holding</em></span>
+        <p>Vos projets avancent.<br>Nous restons à vos côtés.</p>
+      </div>
+      <div class="ftr-cols">
+        <div><b>Voyages &amp; Services</b><a href="#/voyages">Voyager</a><a href="#/colis">Envoyer un colis</a><a href="#/colis/suivi">Suivre un colis</a></div>
+        <div><b>Jess Paradise</b><a href="#/beaute">Beauté &amp; spa</a><a href="#/showroom">Showroom</a><a href="#/appartements">Appartements</a><a href="#/btp">BTP</a></div>
+        <div><b>Engagement</b><a href="#/ong">Jess Children and Women</a><a href="#/ong#soutenir">Faire une promesse de don</a><a href="#/ong#benevolat">Devenir bénévole</a></div>
+        <div><b>Nous joindre</b><span>Nongo, Conakry<br>République de Guinée</span><a href="tel:+224613131323">+224 613 13 13 23</a><a href="https://wa.me/224613131323" target="_blank" rel="noopener">WhatsApp</a></div>
+      </div>
+    </div>
+    <div class="ftr-bot">
+      <span>© <span data-year></span> Jess Holding. Tarifs et disponibilités indicatifs, confirmés par nos équipes.</span>
+      <span><a href="#/mentions-legales">Mentions légales</a> · <a href="#/confidentialite">Confidentialité</a></span>
+    </div>
   </footer>
-  <script src="i18n.js?v=11"></script>
-  <script src="app.js?v=11"></script>
+
+  <nav class="dock" aria-label="Accès rapide">
+    <a href="#/" data-dock="/"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Accueil</a>
+    <button data-cmdk><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2"/></svg>Chercher</button>
+    <button data-dock-univ><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>Univers</button>
+    <a href="https://wa.me/224613131323" target="_blank" rel="noopener" class="dock-wa"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.2z"/></svg>WhatsApp</a>
+  </nav>
+
+  <dialog class="cmdk" id="cmdk" aria-label="Recherche rapide">
+    <div class="cmdk-box">
+      <div class="cmdk-in">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="cmdkInput" placeholder="Ex. « envoyer 10 kg à Paris », « manucure samedi »…" autocomplete="off" aria-controls="cmdkList">
+        <kbd>Échap</kbd>
+      </div>
+      <ul class="cmdk-list" id="cmdkList" role="listbox"></ul>
+      <div class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> naviguer</span><span><kbd>↵</kbd> ouvrir</span></div>
+    </div>
+  </dialog>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-scrim" data-close-drawer></div>
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <button class="drawer-x" data-close-drawer aria-label="Fermer">✕</button>
+      <div id="drawerBody"></div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
 </body>
 </html>
