@@ -789,3 +789,5 @@ body[data-u=ong] .dark{background:#0c271d}
 .field input,.field select{min-width:0}
 .worldmap .ck{font:800 14px var(--ff);paint-order:stroke;stroke:#0b1c30;stroke-width:4px}
 @media (max-width:640px){.worldmap .ck{font-size:30px;stroke-width:7px}}
+@media (max-width:640px){.rituals{grid-template-columns:1fr}.dep>*{min-width:0}}
+@media (max-width:360px){[data-theme-toggle]{display:none}.logo-txt b{font-size:.95rem}:root{--gut:12px}}
