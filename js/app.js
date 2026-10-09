@@ -27,9 +27,10 @@ const store = {
 };
 const waLink = msg => `https://wa.me/${D.wa}?text=${encodeURIComponent(msg)}`;
 const openWA = msg => window.open(waLink(msg), '_blank', 'noopener');
-const waMsg = (team, intro, rows = []) => `Bonjour ${team} 👋\n${intro}\n\n${rows.filter(r => r && r[1] !== '' && r[1] != null).map(r => `• ${r[0]} : ${r[1]}`).join('\n')}\n\n(Demande envoyée depuis le site Jess Holding)`;
+const waMsg = (team, intro, rows = []) => `Bonjour ${team},\n${intro}\n\n${rows.filter(r => r && r[1] !== '' && r[1] != null).map(r => `• ${r[0]} : ${r[1]}`).join('\n')}\n\n(Demande envoyée depuis le site Jess Holding)`;
 const svc = id => D.services.find(s => s.id === id);
-const colors = { voyages: '#0f4c81', colis: '#c85a12', beaute: '#a3405f', showroom: '#5b1220', appartements: '#9c4a26', btp: '#a8740f', ong: '#1b6e51' };
+const BUL = '<span class="bul" aria-hidden="true"></span>';
+const colors = { voyages: '#7b1a2a', colis: '#7b1a2a', beaute: '#7b1a2a', showroom: '#7b1a2a', appartements: '#7b1a2a', btp: '#7b1a2a', ong: '#7b1a2a' };
 
 let toastT;
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2800); }
@@ -74,7 +75,8 @@ function analyze(q) {
       else { href = `#/colis${p.toString() ? '?' + p : ''}#estimer`; action = kg ? `Estimer l’envoi de ${kg[1]} kg${city ? ' vers ' + city.city : ''}` : 'Estimer mon envoi au kilo'; }
     }
     if (s.id === 'voyages') {
-      if (/visa/.test(n)) { href = `#/voyages${city ? '?dest=' + encodeURIComponent(city.city) : ''}#visa`; action = `Préparer mon dossier visa${city ? ' pour ' + city.city : ''}`; }
+      if (/billet|vol\b|avion|aller/.test(n)) { href = `#/voyages${city ? '?to=' + encodeURIComponent(city.city) : ''}#billets`; action = `Réserver un billet d’avion${city ? ' pour ' + city.city : ''}`; }
+      else if (/visa/.test(n)) { href = `#/voyages${city ? '?dest=' + encodeURIComponent(city.city) : ''}#visa`; action = `Préparer mon dossier visa${city ? ' pour ' + city.city : ''}`; }
       else if (city) { href = `#/voyages?dest=${encodeURIComponent(city.city)}#planifier`; action = `Planifier un voyage à ${city.city} · dès ${fmtM(city.price)}`; }
       else { href = '#/voyages#planifier'; action = 'Construire mon voyage selon mon budget'; }
     }
@@ -140,7 +142,7 @@ function viewHome() {
   const dep = nextDepartures()[0];
   const daysTo = Math.max(0, Math.ceil((dep.t - Date.now()) / 864e5));
   const raised = D.campaigns.reduce((a, c) => a + c.raised, 0), goal = D.campaigns.reduce((a, c) => a + c.goal, 0);
-  const nodes = D.services.map((s, i) => `<div class="onode" style="--a:${i * (360 / D.services.length) - 90}deg;--d:41cqw;--c:${colors[s.id]}"><a href="#${s.route}" aria-label="${s.name}"><div><span aria-hidden="true">${s.icon}</span><br><b>${s.name.replace('Agir avec l’ONG', 'ONG')}</b></div></a></div>`).join('');
+  const nodes = D.services.map((s, i) => `<div class="onode" style="--a:${i * (360 / D.services.length) - 90}deg;--d:41cqw;--c:${colors[s.id]}"><a href="#${s.route}" aria-label="${s.name}"><div>${BUL}<b>${s.name.replace('Agir avec l’ONG', 'ONG')}</b></div></a></div>`).join('');
   const tiles = [
     ['voyages', 't-voy', 'Jess Voyages', 'Préparer le voyage qui vous ressemble.', `Promo : Abidjan dès ${fmtM(D.promos[0].price)}`],
     ['colis', 't-col', 'Jess Colis', 'Faire circuler l’essentiel.', `${dep.r.from} → ${dep.r.to} dans ${daysTo} j`],
@@ -208,7 +210,7 @@ function viewHome() {
   <div class="wrap">
     ${secHead('Guidez-moi', 'Par où <em>commencer&nbsp;?</em>', 'Choisissez votre situation : on vous montre le chemin, étape par étape.')}
     <div class="finder">
-      <div class="finder-q" role="tablist" aria-label="Votre situation">${situations.map((s, i) => `<button role="tab" aria-selected="${i === 0}" data-sit="${i}"><i>${svc(s[0]).icon}</i>${s[1]}</button>`).join('')}</div>
+      <div class="finder-q" role="tablist" aria-label="Votre situation">${situations.map((s, i) => `<button role="tab" aria-selected="${i === 0}" data-sit="${i}"><i>${BUL}</i>${s[1]}</button>`).join('')}</div>
       <div class="finder-out" id="finderOut" role="tabpanel" aria-live="polite"></div>
     </div>
   </div>
@@ -247,8 +249,8 @@ ${ctaBand('Un projet en tête ?<br><em>Commençons par une conversation.</em>', 
       const draw = () => {
         items = analyze(input.value);
         if (!input.value.trim()) { res.classList.remove('show'); return; }
-        res.innerHTML = items.length ? items.map((r, i) => `<a href="${r.href}" role="option" class="${i === sel ? 'sel' : ''}"><i>${r.s.icon}</i><div><b>${r.s.label}</b><br><small class="muted">${esc(r.action)}</small></div><span class="meter" title="Pertinence"><i style="width:${r.pct}%"></i></span></a>`).join('')
-          : `<a href="#/contact?msg=${encodeURIComponent(input.value)}"><i>💬</i><div><b>Pas sûr ? Un conseiller vous oriente</b><br><small class="muted">Nous transmettons votre demande : « ${esc(input.value)} »</small></div><em>Contact →</em></a>`;
+        res.innerHTML = items.length ? items.map((r, i) => `<a href="${r.href}" role="option" class="${i === sel ? 'sel' : ''}"><i>${BUL}</i><div><b>${r.s.label}</b><br><small class="muted">${esc(r.action)}</small></div><span class="meter" title="Pertinence"><i style="width:${r.pct}%"></i></span></a>`).join('')
+          : `<a href="#/contact?msg=${encodeURIComponent(input.value)}"><i>${BUL}</i><div><b>Pas sûr ? Un conseiller vous oriente</b><br><small class="muted">Nous transmettons votre demande : « ${esc(input.value)} »</small></div><em>Contact →</em></a>`;
         res.classList.add('show');
       };
       input.addEventListener('input', () => { sel = -1; draw(); });
@@ -332,9 +334,36 @@ function viewVoyages(q) {
   return {
     u: 'voyages', dark: true, title: 'Jess Voyages — Voyages sur mesure au départ de Conakry',
     html: `
-${uhero({ img: 'assets/img/destinations.jpg', kicker: 'Jess Voyages & Services', title: 'Où commencera votre <em>prochain voyage&nbsp;?</em>', lead: 'Billets, séjours sur mesure, visa et plan de paiement. Partagez vos envies et votre budget : nous préparons une proposition claire au départ de Conakry.', crumbs: [['Voyages & Services', '#/voyages-services'], ['Voyager']], actions: `<a class="btn" href="#/voyages#planifier">Planifier mon voyage</a><a class="btn btn-ghost" href="#/voyages#visa">Préparer mon visa</a>`, side: `<div class="glass rv" style="--i:5;min-width:260px"><span class="small" style="opacity:.75">✦ Évasion du moment</span><div class="d3" style="margin:6px 0">Dubaï</div><span class="small">Dès ${fmtM(11800000)} · 7 jours</span></div>` })}
-${subnav([['planifier', 'Planificateur'], ['carte', 'Carte des vols'], ['destinations', 'Destinations'], ['offres', 'Offres'], ['visa', 'Assistant visa'], ['paiement', 'Plan de paiement'], ['faq', 'Questions']])}
+${uhero({ img: 'assets/img/destinations.jpg', kicker: 'Jess Voyages & Services', title: 'Où commencera votre <em>prochain voyage&nbsp;?</em>', lead: 'Billets, séjours sur mesure, visa et plan de paiement. Partagez vos envies et votre budget : nous préparons une proposition claire au départ de Conakry.', crumbs: [['Voyages & Services', '#/voyages-services'], ['Voyager']], actions: `<a class="btn" href="#/voyages#billets">Réserver un billet</a><a class="btn btn-ghost" href="#/voyages#planifier">Voyage sur mesure</a>`, side: `<div class="glass rv" style="--i:5;min-width:260px"><span class="small" style="opacity:.75">Évasion du moment</span><div class="d3" style="margin:6px 0">Dubaï</div><span class="small">Dès ${fmtM(11800000)} · 7 jours</span></div>` })}
+${subnav([['billets', 'Billets d’avion'], ['planifier', 'Sur mesure'], ['carte', 'Carte des vols'], ['destinations', 'Destinations'], ['offres', 'Offres'], ['visa', 'Assistant visa'], ['paiement', 'Plan de paiement'], ['faq', 'Questions']])}
+<section class="sec-tight" id="billets"><div class="wrap">
+  ${secHead('Billets d’avion', 'Partez d’où vous voulez, <em>allez où vous voulez.</em>', 'Saisissez librement votre ville ou aéroport de départ et d’arrivée, vos dates et vos voyageurs, puis réservez et payez en ligne.')}
+  <form class="panel fsearch rv" id="fSearch" novalidate>
+    <div class="fs-top">
+      <div class="seg" id="fTrip"><button type="button" data-v="rt" aria-pressed="true">Aller-retour</button><button type="button" data-v="ow" aria-pressed="false">Aller simple</button></div>
+      <label class="fs-class"><span class="vh">Classe</span><select id="fClass" class="input"><option value="1">Économique</option><option value="1.6">Premium économique</option><option value="2.9">Affaires</option><option value="4.5">Première</option></select></label>
+    </div>
+    <div class="fs-grid">
+      <label class="field fs-from"><span>Départ</span><input id="fFrom" list="airportList" required autocomplete="off" placeholder="Ville ou aéroport" value="${esc(q.from || 'Conakry (CKY)')}"></label>
+      <button type="button" class="fs-swap" id="fSwap" aria-label="Inverser départ et arrivée">⇄</button>
+      <label class="field fs-to"><span>Arrivée</span><input id="fTo" list="airportList" required autocomplete="off" placeholder="Ville ou aéroport" value="${esc(q.to || '')}"></label>
+      <label class="field"><span>Aller</span><input type="date" id="fGo" required></label>
+      <label class="field" id="fBackWrap"><span>Retour</span><input type="date" id="fBack"></label>
+      <div class="field fs-pax"><span>Voyageurs</span><button type="button" class="input fs-paxbtn" id="fPaxBtn" aria-expanded="false" aria-controls="fPop">1 adulte</button>
+        <div class="fs-pop" id="fPop" hidden>
+          ${[['ad', 'Adultes', '12 ans et plus', 1], ['ch', 'Enfants', '2 à 11 ans', 0], ['in', 'Bébés', 'Moins de 2 ans', 0]].map(x => `<div class="fs-row"><div><b>${x[1]}</b><small>${x[2]}</small></div><div class="stepper"><button type="button" data-px="${x[0]}|-1" aria-label="Retirer ${x[1].toLowerCase()}">−</button><output data-pxo="${x[0]}">${x[3]}</output><button type="button" data-px="${x[0]}|1" aria-label="Ajouter ${x[1].toLowerCase()}">+</button></div></div>`).join('')}
+          <button type="button" class="btn btn-sm btn-block" id="fPaxOk">Valider</button>
+        </div>
+      </div>
+      <button class="btn fs-go">Rechercher</button>
+    </div>
+    <datalist id="airportList">${D.airports.map(a => `<option value="${a[1]} (${a[0]})">${a[2]}</option>`).join('')}</datalist>
+  </form>
+  <div id="fResults" aria-live="polite"></div>
+</div></section>
+
 <section class="sec-tight" id="planifier"><div class="wrap">
+  ${secHead('Voyage sur mesure', 'Votre séjour complet, <em>chiffré en direct.</em>')}
   <div class="planner" style="margin-top:0">
     <form class="panel rv" id="plan" novalidate>
       <p class="kicker">Planificateur transparent</p>
@@ -365,10 +394,10 @@ ${subnav([['planifier', 'Planificateur'], ['carte', 'Carte des vols'], ['destina
   ${secHead('Carte des vols', 'Le monde, <em>depuis Conakry.</em>', 'Touchez une destination pour voir la durée de vol, les formalités et la meilleure saison.')}
   <div class="worldmap rv">
     <svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" aria-label="Carte des destinations">
-      <defs><linearGradient id="arcg" x1="0" x2="1"><stop offset="0" stop-color="#f2a65a"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+      <defs><linearGradient id="arcg" x1="0" x2="1"><stop offset="0" stop-color="#d98b99"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
       <g stroke="rgba(255,255,255,.07)" stroke-width="1">${grat}</g>
       <g id="arcs"></g>
-      <g><circle cx="${cx}" cy="${cy}" r="22" fill="rgba(242,166,90,.25)"><animate attributeName="r" values="12;26;12" dur="3s" repeatCount="indefinite"/></circle><circle cx="${cx}" cy="${cy}" r="7" fill="#f2a65a"/><text class="ck" x="${cx + 14}" y="${cy + 24}" fill="#fff">Conakry</text></g>
+      <g><circle cx="${cx}" cy="${cy}" r="22" fill="rgba(217,139,153,.3)"><animate attributeName="r" values="12;26;12" dur="3s" repeatCount="indefinite"/></circle><circle cx="${cx}" cy="${cy}" r="7" fill="#d98b99"/><text class="ck" x="${cx + 14}" y="${cy + 24}" fill="#fff">Conakry</text></g>
       ${pins}
     </svg>
     <div class="map-info" id="mapInfo"></div>
@@ -384,7 +413,7 @@ ${subnav([['planifier', 'Planificateur'], ['carte', 'Carte des vols'], ['destina
 
 <section class="sec alt" id="offres"><div class="wrap">
   ${secHead('Offres du moment', 'Partir mieux, <em>au bon moment.</em>', 'Des conditions lisibles, sans fausse urgence.')}
-  <div class="grid g3">${D.promos.map((p, i) => `<article class="promo rv" style="--i:${i}">${p.old ? `<span class="ribbon-tag">-${Math.round((1 - p.price / p.old) * 100)} %</span>` : ''}<span class="tag">${p.route}</span><h3 class="d3">${p.title}</h3><div class="price">${fmt(p.price)}${p.old ? `<s>${fmt(p.old)}</s>` : ''}</div><span class="small muted">📅 ${p.dates}<br>✈ ${p.cond}</span>${waBtn('Demander cette offre', waMsg('Jess Voyages', 'Je suis intéressé(e) par cette offre :', [['Offre', p.title], ['Trajet', p.route], ['Dates', p.dates], ['Prix affiché', fmt(p.price)]]), 'btn btn-ghost')}</article>`).join('')}</div>
+  <div class="grid g3">${D.promos.map((p, i) => `<article class="promo rv" style="--i:${i}">${p.old ? `<span class="ribbon-tag">-${Math.round((1 - p.price / p.old) * 100)} %</span>` : ''}<span class="tag">${p.route}</span><h3 class="d3">${p.title}</h3><div class="price">${fmt(p.price)}${p.old ? `<s>${fmt(p.old)}</s>` : ''}</div><span class="small muted"><span class="li">${p.dates}</span><span class="li">${p.cond}</span></span>${waBtn('Demander cette offre', waMsg('Jess Voyages', 'Je suis intéressé(e) par cette offre :', [['Offre', p.title], ['Trajet', p.route], ['Dates', p.dates], ['Prix affiché', fmt(p.price)]]), 'btn btn-ghost')}</article>`).join('')}</div>
 </div></section>
 
 <section class="sec" id="visa"><div class="wrap split" style="align-items:start">
@@ -407,7 +436,7 @@ ${subnav([['planifier', 'Planificateur'], ['carte', 'Carte des vols'], ['destina
     <label class="field"><span>Montant du voyage</span><div class="budget-out"><b class="big-num" id="ppAmtOut"></b></div><input type="range" id="ppAmt" min="3000000" max="60000000" step="500000" value="15000000"></label>
     <div class="field" style="margin-top:18px"><span>Nombre de mensualités</span><div class="seg" id="ppN">${[2, 3, 4, 6].map((n, i) => `<button type="button" aria-pressed="${i === 1}" data-v="${n}">${n} mois</button>`).join('')}</div></div>
     <div class="fit" style="background:rgba(255,255,255,.06)"><div><span class="small muted">Acompte (30 %)</span><div class="price" id="ppDown"></div></div><div style="margin-left:auto;text-align:right"><span class="small muted">Puis par mois</span><div class="big-num" id="ppMonth"></div></div></div>
-    <button class="btn btn-block" id="ppSend" style="margin-top:16px;--b:var(--accent-2);color:#1d1013">Demander une étude</button>
+    <button class="btn btn-block" id="ppSend" style="margin-top:16px;--b:#fff;color:#4b0f18">Demander une étude</button>
     <p class="note">Simulation indicative sans frais affichés. Conditions définitives communiquées après étude du dossier.</p>
   </div>
 </div></section>
@@ -419,11 +448,12 @@ ${subnav([['planifier', 'Planificateur'], ['carte', 'Carte des vols'], ['destina
 ${ctaBand('Le prochain départ peut <em>commencer aujourd’hui.</em>', 'Un conseiller Jess Voyages vous répond sur WhatsApp avec une proposition claire.', `${waBtn('Écrire à Jess Voyages', 'Bonjour Jess Voyages, je souhaite préparer un voyage.', 'btn btn-light')}<a class="btn btn-ghost" href="tel:+224613131323">Appeler</a>`)}
 `,
     init(q) {
+      initFlights(q);
       const f = $('#plan'), go = $('#pGo'), back = $('#pBack'), budget = $('#pBudget'), dest = $('#pDest');
       let pax = +(q.pax || 1), comfort = 1;
       const t0 = addDays(today(), 21);
       go.min = iso(today()); go.value = iso(t0); back.value = iso(addDays(t0, 7)); back.min = go.value;
-      const parts = [['Billets', .52, '#0f4c81'], ['Hôtel', .28, '#4f8fc9'], ['Activités', .09, '#f2a65a'], ['Transferts', .05, '#f6c68f'], ['Marge sécurité', .06, '#c7d7ea']];
+      const parts = [['Billets', .52, '#7b1a2a'], ['Hôtel', .28, '#a8475a'], ['Activités', .09, '#6e6e73'], ['Transferts', .05, '#a7a7ad'], ['Marge sécurité', .06, '#d6d6da']];
       const calc = () => {
         setRange(budget);
         const d = D.destinations.find(x => x.city === dest.value);
@@ -438,7 +468,7 @@ ${ctaBand('Le prochain départ peut <em>commencer aujourd’hui.</em>', 'Un cons
         const ratio = Math.min(100, Math.round(+budget.value / est * 100));
         const ring = $('#pRing'); ring.style.setProperty('--v', ratio); ring.querySelector('span').textContent = ratio + '%';
         const alt = D.destinations.filter(x => x.price * pax * [0.82, 1, 1.45][comfort] <= +budget.value && x.city !== d.city).sort((a, b) => b.price - a.price)[0];
-        $('#pFitT').textContent = ratio >= 100 ? 'Votre budget couvre ce voyage ✓' : ratio >= 80 ? 'Presque ! Quelques ajustements suffisent' : 'Budget à ajuster';
+        $('#pFitT').textContent = ratio >= 100 ? 'Votre budget couvre ce voyage' : ratio >= 80 ? 'Presque ! Quelques ajustements suffisent' : 'Budget à ajuster';
         $('#pFitS').textContent = ratio >= 100 ? `Marge disponible : ${fmtM(+budget.value - est)} pour des extras.` : alt ? `Avec ce budget, ${alt.city} est accessible (${alt.days} jours).` : 'Essayez moins de nuits, ou le confort Essentiel.';
         return { d, nights, est };
       };
@@ -479,7 +509,7 @@ ${ctaBand('Le prochain départ peut <em>commencer aujourd’hui.</em>', 'Un cons
         $('#vTitle').textContent = `Dossier ${$('#vMotif [aria-pressed=true]').textContent.toLowerCase()} · ${$('#vDest').value}`;
         $('#vList').innerHTML = list.map((x, i) => `<li><label><input type="checkbox" data-i="${i}" ${done.includes(i) ? 'checked' : ''}><span>${x}</span></label></li>`).join('');
         const upd = () => { const c = $$('#vList input:checked').map(x => +x.dataset.i); store.set('visa-' + motif, c); $('#vCount').textContent = `${c.length}/${list.length} prêtes`; $('#vBar').style.width = c.length / list.length * 100 + '%'; };
-        $$('#vList input').forEach(x => x.addEventListener('change', () => { upd(); if ($$('#vList input:checked').length === list.length) toast('Dossier complet ! Faites-le vérifier par notre équipe ✓'); }));
+        $$('#vList input').forEach(x => x.addEventListener('change', () => { upd(); if ($$('#vList input:checked').length === list.length) toast('Dossier complet. Faites-le vérifier par notre équipe.'); }));
         upd();
       };
       segBind($('#vMotif'), v => { motif = v; vDraw(); });
@@ -609,8 +639,8 @@ ${ctaBand('Prêt à <em>expédier&nbsp;?</em>', 'L’équipe Jess Colis confirme
         ref = ref.trim().toUpperCase(); const out = $('#trackOut');
         if (ref.length < 6) { out.innerHTML = '<p class="muted" style="margin:0">Référence trop courte. Exemple : <b>JESS-2026-0412</b></p>'; return; }
         const h = hash(ref), r = D.parcelRoutes[h % 4], at = 1 + h % 4, start = addDays(today(), -(at * 2 + 1));
-        const steps = [['📥', 'Reçu à l’agence', `Agence de ${r.from === 'Conakry' ? 'Nongo' : r.from}`], ['🔍', 'Contrôlé et emballé', 'Pesée, vérification et étiquetage'], ['✈', 'En transit', `${r.from} → ${r.to}`], ['📍', 'Arrivé à destination', `Entrepôt ${r.to}`], ['✅', 'Disponible au retrait', 'Le destinataire est prévenu par téléphone']];
-        out.innerHTML = `<div class="budget-out" style="margin:0"><div><span class="small muted">Référence</span><br><b>${esc(ref)}</b></div><span class="tag">${r.from} → ${r.to} · ${(h % 30) + 3} kg</span></div><div class="bar" style="margin-top:14px"><i style="width:${at / 4 * 100}%"></i></div><div class="track-line">${steps.map((s, i) => `<div class="track-step ${i < at ? 'done' : i === at ? 'now' : ''}" style="transition-delay:${i * 120}ms"><i>${i < at ? '✓' : s[0]}</i><div><b>${s[1]}</b><small>${i <= at ? dLong(addDays(start, i * 2)) + ' · ' : ''}${s[2]}</small></div></div>`).join('')}</div>`;
+        const steps = [['', 'Reçu à l’agence', `Agence de ${r.from === 'Conakry' ? 'Nongo' : r.from}`], ['', 'Contrôlé et emballé', 'Pesée, vérification et étiquetage'], ['', 'En transit', `${r.from} → ${r.to}`], ['', 'Arrivé à destination', `Entrepôt ${r.to}`], ['', 'Disponible au retrait', 'Le destinataire est prévenu par téléphone']];
+        out.innerHTML = `<div class="budget-out" style="margin:0"><div><span class="small muted">Référence</span><br><b>${esc(ref)}</b></div><span class="tag">${r.from} → ${r.to} · ${(h % 30) + 3} kg</span></div><div class="bar" style="margin-top:14px"><i style="width:${at / 4 * 100}%"></i></div><div class="track-line">${steps.map((s, i) => `<div class="track-step ${i < at ? 'done' : i === at ? 'now' : ''}" style="transition-delay:${i * 120}ms"><i>${pad(i + 1)}</i><div><b>${s[1]}</b><small>${i <= at ? dLong(addDays(start, i * 2)) + ' · ' : ''}${s[2]}</small></div></div>`).join('')}</div>`;
       };
       $('#trackF').addEventListener('submit', e => { e.preventDefault(); track($('#trackIn').value); });
       if (q.ref) track(q.ref);
@@ -698,7 +728,7 @@ ${subnav([['rituels', 'Rituels'], ['composer', 'Composer'], ['reserver', 'Réser
     init(q) {
       const sel = new Set(D.beautyServices.map((s, i) => q.svc === s.name ? i : -1).filter(i => i >= 0));
       let ritual = -1, day = null, slot = null, step = 0;
-      const pal = ['#a3405f', '#c86f8c', '#d9b38c', '#7a2e47', '#e7a1b6', '#b98a6a'];
+      const pal = ['#7b1a2a', '#a8475a', '#6e6e73', '#5a1424', '#a7a7ad', '#c98f9b'];
       const draw = () => {
         const list = [...(ritual >= 0 ? [{ name: D.rituals[ritual].name, price: D.rituals[ritual].price, min: D.rituals[ritual].duration }] : []), ...[...sel].map(i => D.beautyServices[i])];
         const tot = list.reduce((a, s) => a + s.price, 0), dur = list.reduce((a, s) => a + s.min, 0);
@@ -746,14 +776,14 @@ function viewShowroom() {
 ${uhero({ img: 'assets/img/boutique.jpg', kicker: 'Jess Paradise · Showroom', title: 'Des pièces choisies.<br><em>Un style à vous.</em>', lead: 'Vêtements, accessoires et parfums. Composez votre sélection, réservez-la et venez l’essayer en boutique.', crumbs: [['Jess Paradise', '#/paradise'], ['Showroom']], actions: `<a class="btn" href="#/showroom#collection">Voir la collection</a>` })}
 <section class="sec" id="collection"><div class="wrap">
   ${secHead('La collection', 'Bordeaux, ivoire <em>et or.</em>', '', `<label class="field" style="min-width:200px"><span class="vh">Trier</span><select id="sSort"><option value="">Trier : sélection</option><option value="asc">Prix croissant</option><option value="desc">Prix décroissant</option></select></label>`)}
-  <div class="chips scroll" style="margin-bottom:24px" id="sCats"><button class="chip" aria-pressed="true" data-c="all">Tout</button>${[...new Set(D.products.map(p => p.cat))].map(c => `<button class="chip" aria-pressed="false" data-c="${c}">${c}</button>`).join('')}<button class="chip" aria-pressed="false" data-c="fav">♥ Favoris</button></div>
+  <div class="chips scroll" style="margin-bottom:24px" id="sCats"><button class="chip" aria-pressed="true" data-c="all">Tout</button>${[...new Set(D.products.map(p => p.cat))].map(c => `<button class="chip" aria-pressed="false" data-c="${c}">${c}</button>`).join('')}<button class="chip" aria-pressed="false" data-c="fav">Favoris</button></div>
   <div class="shop" id="shop"></div>
   <p class="note">Collection de démonstration : stocks, tailles et prix sont confirmés par la boutique. Aucun paiement en ligne.</p>
 </div></section>
 <section class="sec alt"><div class="wrap">
   <div class="grid g3">${[['Mise de côté 48 h', 'Votre sélection est réservée à votre nom pendant 48 heures.'], ['Essayage en boutique', 'Venez essayer avant de décider, sans engagement.'], ['Conseil style', 'Une conseillère vous aide à composer une tenue complète.']].map((x, i) => `<article class="card rv" style="--i:${i}"><h3 class="d3" style="margin-bottom:8px">${x[0]}</h3><p class="muted" style="margin:0">${x[1]}</p></article>`).join('')}</div>
 </div></section>
-<button class="bag-btn" id="bagBtn" aria-label="Ouvrir ma sélection">🛍 Ma sélection <b id="bagN">0</b></button>
+<button class="bag-btn" id="bagBtn" aria-label="Ouvrir ma sélection">Ma sélection <b id="bagN">0</b></button>
 `,
     init() {
       let cat = 'all', sort = '';
@@ -762,7 +792,7 @@ ${uhero({ img: 'assets/img/boutique.jpg', kicker: 'Jess Paradise · Showroom', t
       const draw = () => {
         let list = D.products.filter(p => cat === 'all' || (cat === 'fav' ? favs.has(p.id) : p.cat === cat));
         if (sort) list = [...list].sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
-        $('#shop').innerHTML = list.length ? list.map((p, i) => `<article class="prod" style="animation-delay:${i * 60}ms"><div class="prod-img" style="background-position:${p.pos}" role="img" aria-label="${p.name}"><button class="fav" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="Ajouter aux favoris">♥</button></div><div class="prod-body"><span class="small muted">${p.cat}</span><h3>${p.name}</h3><span class="price">${fmt(p.price)}</span><div class="sizes" role="group" aria-label="Taille">${p.sizes.map((s, k) => `<button type="button" data-size="${p.id}|${s}" aria-pressed="${(size[p.id] || p.sizes[0]) === s}">${s}</button>`).join('')}</div><button class="btn btn-sm" data-add="${p.id}" style="margin-top:auto">Ajouter à ma sélection</button></div></article>`).join('') : '<p class="muted">Aucun favori pour l’instant. Touchez ♥ sur une pièce.</p>';
+        $('#shop').innerHTML = list.length ? list.map((p, i) => `<article class="prod" style="animation-delay:${i * 60}ms"><div class="prod-img" style="background-position:${p.pos}" role="img" aria-label="${p.name}"><button class="fav" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="Ajouter aux favoris"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20s-7-4.4-9.2-8.6C1.4 8.6 3 5 6.4 5c2 0 3.2 1.1 3.9 2.2h3.4C14.4 6.1 15.6 5 17.6 5 21 5 22.6 8.6 21.2 11.4 19 15.6 12 20 12 20z" fill="currentColor"/></svg></button></div><div class="prod-body"><span class="small muted">${p.cat}</span><h3>${p.name}</h3><span class="price">${fmt(p.price)}</span><div class="sizes" role="group" aria-label="Taille">${p.sizes.map((s, k) => `<button type="button" data-size="${p.id}|${s}" aria-pressed="${(size[p.id] || p.sizes[0]) === s}">${s}</button>`).join('')}</div><button class="btn btn-sm" data-add="${p.id}" style="margin-top:auto">Ajouter à ma sélection</button></div></article>`).join('') : '<p class="muted">Aucun favori pour l’instant. Touchez le cœur sur une pièce.</p>';
       };
       $$('[data-c]').forEach(b => b.addEventListener('click', () => { cat = b.dataset.c; $$('[data-c]').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); }));
       $('#sSort').addEventListener('change', e => { sort = e.target.value; draw(); });
@@ -802,7 +832,7 @@ ${uhero({ img: 'assets/img/suite-kipe-v2.jpg', kicker: 'Jess Paradise · Séjour
 ${subnav([['logements', 'Logements'], ['reserver', 'Réserver'], ['comparer', 'Comparer'], ['pratique', 'Infos pratiques']])}
 <section class="sec" id="logements"><div class="wrap">
   ${secHead('Nos logements', 'Comme chez vous, <em>dès l’arrivée.</em>')}
-  <div class="stays">${D.stays.map((s, i) => `<article class="stay rv" style="--i:${i}" data-stay-card="${s.id}"><div class="stay-img"><img src="${s.img}" alt="${s.name}" loading="lazy" decoding="async"><span class="tag">${s.area}</span><span class="rate">★ ${s.rating}</span></div><div class="stay-body"><h3>${s.name}</h3><p class="muted small" style="margin:0">${s.blurb}</p><div class="specs"><span>👤 ${s.guests} voyageurs</span><span>🛏 ${s.beds} ch.</span><span>📐 ${s.size} m²</span></div><div class="perks">${s.perks.map(p => `<span>${p}</span>`).join('')}</div><div class="budget-out" style="margin-top:auto"><span class="price">${fmt(s.price)} <small>/ nuit</small></span><button class="btn btn-sm" data-pick="${s.id}">Choisir</button></div></div></article>`).join('')}</div>
+  <div class="stays">${D.stays.map((s, i) => `<article class="stay rv" style="--i:${i}" data-stay-card="${s.id}"><div class="stay-img"><img src="${s.img}" alt="${s.name}" loading="lazy" decoding="async"><span class="tag">${s.area}</span><span class="rate">${String(s.rating).replace('.', ',')} / 5</span></div><div class="stay-body"><h3>${s.name}</h3><p class="muted small" style="margin:0">${s.blurb}</p><div class="specs"><span>${s.guests} voyageurs</span><span>${s.beds} chambre${s.beds > 1 ? 's' : ''}</span><span>${s.size} m²</span></div><div class="perks">${s.perks.map(p => `<span>${p}</span>`).join('')}</div><div class="budget-out" style="margin-top:auto"><span class="price">${fmt(s.price)} <small>/ nuit</small></span><button class="btn btn-sm" data-pick="${s.id}">Choisir</button></div></div></article>`).join('')}</div>
 </div></section>
 <section class="sec alt" id="reserver"><div class="wrap">
   ${secHead('Réservation', 'Choisissez <em>vos dates.</em>', 'Touchez la date d’arrivée puis celle de départ. Les dates barrées sont déjà réservées.')}
@@ -830,7 +860,7 @@ ${subnav([['logements', 'Logements'], ['reserver', 'Réserver'], ['comparer', 'C
 <section class="sec" id="comparer"><div class="wrap">
   ${secHead('Comparateur', 'Le bon logement <em>en un coup d’œil.</em>')}
   <div class="tablewrap rv"><table class="compare"><thead><tr><th scope="col"><span class="vh">Critère</span></th>${D.stays.map(s => `<th scope="col">${s.name}</th>`).join('')}</tr></thead><tbody>
-    ${[['Quartier', s => s.area], ['Prix / nuit', s => fmt(s.price), 'min'], ['Voyageurs', s => s.guests, 'max'], ['Surface', s => s.size + ' m²', 'max'], ['Chambres', s => s.beds], ['Note', s => '★ ' + s.rating, 'max'], ['Idéal pour', s => ({ nongo: 'Solo, mission courte', kaloum: 'Famille, affaires', kipe: 'Long séjour, télétravail' })[s.id]]].map(([l, fn, best]) => { const vals = D.stays.map(s => parseFloat(String(fn(s)).replace(/[^\d.]/g, '')) || 0); const b = best === 'min' ? Math.min(...vals) : Math.max(...vals); return `<tr><td>${l}</td>${D.stays.map((s, i) => `<td class="${best && vals[i] === b ? 'best' : ''}">${fn(s)}</td>`).join('')}</tr>`; }).join('')}
+    ${[['Quartier', s => s.area], ['Prix / nuit', s => fmt(s.price), 'min'], ['Voyageurs', s => s.guests, 'max'], ['Surface', s => s.size + ' m²', 'max'], ['Chambres', s => s.beds], ['Note', s => String(s.rating).replace('.', ',') + ' / 5', 'max'], ['Idéal pour', s => ({ nongo: 'Solo, mission courte', kaloum: 'Famille, affaires', kipe: 'Long séjour, télétravail' })[s.id]]].map(([l, fn, best]) => { const vals = D.stays.map(s => parseFloat(String(fn(s)).replace(/[^\d.]/g, '')) || 0); const b = best === 'min' ? Math.min(...vals) : Math.max(...vals); return `<tr><td>${l}</td>${D.stays.map((s, i) => `<td class="${best && vals[i] === b ? 'best' : ''}">${fn(s)}</td>`).join('')}</tr>`; }).join('')}
   </tbody></table></div>
 </div></section>
 <section class="sec dark" id="pratique"><div class="wrap">
@@ -857,7 +887,7 @@ ${subnav([['logements', 'Logements'], ['reserver', 'Réserver'], ['comparer', 'C
         const base = new Date(t0.getFullYear(), t0.getMonth() + off, 1);
         $('#cals').innerHTML = month(base) + month(new Date(base.getFullYear(), base.getMonth() + 1, 1));
         $('#calPrev').disabled = off <= 0;
-        $('#calHint').textContent = !a ? 'Sélectionnez votre arrivée' : !b ? 'Sélectionnez votre départ' : 'Dates sélectionnées ✓';
+        $('#calHint').textContent = !a ? 'Sélectionnez votre arrivée' : !b ? 'Sélectionnez votre départ' : 'Dates sélectionnées';
         $('#aName').textContent = stay.name; $('#aG').textContent = g;
         $('#aIn').textContent = a ? dShort(a) : '—'; $('#aOut').textContent = b ? dShort(b) : '—';
         const n = a && b ? Math.round((b - a) / 864e5) : 0, sub = n * stay.price, disc = n >= 7 ? sub * .1 : 0;
@@ -890,7 +920,7 @@ ${subnav([['logements', 'Logements'], ['reserver', 'Réserver'], ['comparer', 'C
    BTP
    ===================================================================== */
 function viewBTP(q) {
-  const types = [['neuf', '🏗', 'Construction neuve', 'Maison, villa, immeuble'], ['reno', '🔧', 'Rénovation', 'Remise à neuf, mise aux normes'], ['ext', '➕', 'Extension', 'Étage, pièce, annexe']];
+  const types = [['neuf', '', 'Construction neuve', 'Maison, villa, immeuble'], ['reno', '', 'Rénovation', 'Remise à neuf, mise aux normes'], ['ext', '', 'Extension', 'Étage, pièce, annexe']];
   return {
     u: 'btp', dark: true, title: 'Jess Paradise BTP — Construction et rénovation à Conakry',
     html: `
@@ -900,7 +930,7 @@ ${subnav([['estimer', 'Estimateur'], ['methode', 'Méthode'], ['metiers', 'Méti
   ${secHead('Estimateur de projet', 'Votre projet, <em>chiffré et planifié.</em>', 'Une première fourchette de budget et de durée, construite à partir de ratios moyens observés à Conakry.')}
   <div class="btp-est">
     <div class="panel rv">
-      <div class="field"><span>Type de projet</span><div class="type-cards" id="tType">${types.map((t, i) => `<button type="button" data-v="${t[0]}" aria-pressed="${i === 0}"><i>${t[1]}</i><b>${t[2]}</b><small>${t[3]}</small></button>`).join('')}</div></div>
+      <div class="field"><span>Type de projet</span><div class="type-cards" id="tType">${types.map((t, i) => `<button type="button" data-v="${t[0]}" aria-pressed="${i === 0}">${BUL}<b>${t[2]}</b><small>${t[3]}</small></button>`).join('')}</div></div>
       <label class="field" style="margin-top:20px"><span>Surface</span><div class="budget-out"><b class="big-num" id="tM2Out"></b><span class="small muted">20 → 800 m²</span></div><input type="range" id="tM2" min="20" max="800" step="10" value="${Math.min(800, +q.m2 || 150)}"></label>
       <div class="fields" style="margin-top:18px">
         <div class="field"><span>Niveaux</span><div class="stepper"><button type="button" data-l="-1" aria-label="Moins">−</button><output id="tLv">R+0</output><button type="button" data-l="1" aria-label="Plus">+</button></div></div>
@@ -924,7 +954,7 @@ ${subnav([['estimer', 'Estimateur'], ['methode', 'Méthode'], ['metiers', 'Méti
 </div></section>
 <section class="sec" id="metiers"><div class="wrap">
   ${secHead('Nos métiers', 'Un interlocuteur, <em>tous les corps d’état.</em>')}
-  <div class="grid g3">${[['🧱', 'Gros œuvre', 'Fondations, maçonnerie, dalles et charpente.'], ['🪟', 'Second œuvre', 'Menuiseries, carrelage, peinture, faux plafonds.'], ['⚡', 'Réseaux', 'Électricité, plomberie, climatisation.'], ['🏚', 'Rénovation', 'Toiture, étanchéité, remise aux normes.'], ['📋', 'Suivi de chantier', 'Coordination, contrôle qualité et reporting.'], ['🛋', 'Aménagement', 'Intérieurs, cuisines et salles de bain clés en main.']].map((m, i) => `<article class="card rv" style="--i:${i % 3}"><span style="font-size:1.8rem">${m[0]}</span><h3 class="d3" style="margin:10px 0 6px">${m[1]}</h3><p class="muted" style="margin:0">${m[2]}</p></article>`).join('')}</div>
+  <div class="grid g3">${[['', 'Gros œuvre', 'Fondations, maçonnerie, dalles et charpente.'], ['', 'Second œuvre', 'Menuiseries, carrelage, peinture, faux plafonds.'], ['', 'Réseaux', 'Électricité, plomberie, climatisation.'], ['', 'Rénovation', 'Toiture, étanchéité, remise aux normes.'], ['', 'Suivi de chantier', 'Coordination, contrôle qualité et reporting.'], ['', 'Aménagement', 'Intérieurs, cuisines et salles de bain clés en main.']].map((m, i) => `<article class="card rv" style="--i:${i % 3}"><span class="num">${pad(i + 1)}</span><h3 class="d3" style="margin:10px 0 6px">${m[1]}</h3><p class="muted" style="margin:0">${m[2]}</p></article>`).join('')}</div>
 </div></section>
 <section class="sec alt" id="faq"><div class="wrap split" style="align-items:start">
   ${secHead('Questions fréquentes', 'Avant de <em>poser la première pierre.</em>')}
@@ -970,7 +1000,7 @@ function viewONG(q) {
     u: 'ong', dark: true, title: 'Jess Children and Women — Agir pour les femmes et les enfants',
     html: `
 ${uhero({ img: 'assets/img/jess-children-women.jpg', kicker: 'Jess Children and Women', title: 'Protéger aujourd’hui.<br><em>Ouvrir demain.</em>', lead: 'Nous mobilisons les communautés autour de l’éducation, de la santé, de la protection et de l’autonomie des femmes et des enfants en Guinée.', crumbs: [['Engagement']], actions: `<a class="btn" href="#/ong#soutenir">Soutenir une cause</a><a class="btn btn-ghost" href="#/ong#benevolat">Devenir bénévole</a>` })}
-${subnav([['mission', 'Mission'], ['campagnes', 'Campagnes'], ['soutenir', 'Simuler mon impact'], ['benevolat', 'Bénévolat'], ['transparence', 'Transparence']])}
+${subnav([['mission', 'Mission'], ['campagnes', 'Campagnes'], ['projets', 'Projets réalisés'], ['soutenir', 'Faire un don'], ['benevolat', 'Bénévolat'], ['transparence', 'Transparence']])}
 <section class="sec" id="mission"><div class="wrap">
   <div class="counters" style="margin-bottom:clamp(48px,7vw,96px)">
     <div class="rv"><b data-count="${Math.round(raised / 1e6)}" data-suf=" M">0</b><span>GNF de promesses réunies</span></div>
@@ -979,23 +1009,29 @@ ${subnav([['mission', 'Mission'], ['campagnes', 'Campagnes'], ['soutenir', 'Simu
     <div class="rv" style="--i:3"><b data-count="4">0</b><span>axes d’action</span></div>
   </div>
   ${secHead('Pourquoi nous agissons', 'Chaque femme soutenue.<br><em>Chaque enfant protégé.</em>', 'Identifier les besoins avec les communautés, réunir les ressources et accompagner des actions simples, utiles et mesurables.')}
-  <div class="pillars">${[['📚', 'Éducation', 'Matériel scolaire, maintien à l’école et accompagnement des jeunes filles.'], ['🩺', 'Santé', 'Prévention, santé maternelle, hygiène et orientation adaptée.'], ['🛡', 'Protection', 'Écoute et environnements plus sûrs pour les enfants vulnérables.'], ['🌱', 'Autonomie', 'Compétences, mentorat et soutien à l’activité des femmes.']].map((p, i) => `<article class="pillar rv" style="--i:${i}"><i>${p[0]}</i><h3>${p[1]}</h3><p>${p[2]}</p></article>`).join('')}</div>
+  <div class="pillars">${[['', 'Éducation', 'Matériel scolaire, maintien à l’école et accompagnement des jeunes filles.'], ['', 'Santé', 'Prévention, santé maternelle, hygiène et orientation adaptée.'], ['', 'Protection', 'Écoute et environnements plus sûrs pour les enfants vulnérables.'], ['', 'Autonomie', 'Compétences, mentorat et soutien à l’activité des femmes.']].map((p, i) => `<article class="pillar rv" style="--i:${i}"><i class="num">${pad(i + 1)}</i><h3>${p[1]}</h3><p>${p[2]}</p></article>`).join('')}</div>
   <p class="note">Chiffres de démonstration. Toute collecte réelle sera documentée et reliée à un moyen de paiement officiel validé.</p>
 </div></section>
 <section class="sec alt" id="campagnes"><div class="wrap">
   ${secHead('Cagnottes solidaires', 'Cinq façons de <em>faire une différence.</em>')}
-  <div class="camp-grid">${D.campaigns.map((c, i) => { const p = Math.round(c.raised / c.goal * 100); return `<article class="camp rv" style="--i:${i % 3}"><span class="tag">${c.cause}</span><h3>${c.name}</h3><p class="muted small" style="margin:0">${c.copy}</p><div class="ring" style="--v:0" data-v="${p}"><i></i></div><div class="nums"><b>${p} %</b><span>${fmtM(c.raised)} / ${fmtM(c.goal)}</span></div><span class="small muted">${c.donors} soutiens · ${fmt(c.unit)} = 1 ${c.unitLabel}</span><button class="btn btn-sm" data-camp="${c.id}">Soutenir cette cause</button></article>`; }).join('')}</div>
+  <div class="camp-grid">${D.campaigns.map((c, i) => { const p = Math.round(c.raised / c.goal * 100); return `<article class="camp rv" style="--i:${i % 3}"><div class="camp-img"><img src="${c.img}" alt="" loading="lazy" decoding="async" style="object-position:${c.pos || 'center'}"><span class="tag">${c.cause}</span></div><h3>${c.name}</h3><p class="muted small" style="margin:0">${c.copy}</p><div class="ring" style="--v:0" data-v="${p}"><i></i></div><div class="nums"><b>${p} %</b><span>${fmtM(c.raised)} / ${fmtM(c.goal)}</span></div><span class="small muted">${c.donors} soutiens · ${fmt(c.unit)} = 1 ${c.unitLabel}</span><button class="btn btn-sm" data-camp="${c.id}">Soutenir cette cause</button></article>`; }).join('')}</div>
+</div></section>
+<section class="sec" id="projets"><div class="wrap">
+  ${secHead('Projets réalisés', 'Sur le terrain, <em>en images.</em>', 'Chaque action est documentée : lieu, date, résultats et photos.')}
+  <div class="projects">${D.projects.map((p, i) => `<article class="proj rv ${i % 2 ? 'rev' : ''}">${carousel(p.images, p.title)}<div class="proj-body"><span class="li small muted">${p.date} · ${p.place}</span><h3 class="d3">${p.title}</h3><p class="muted">${p.copy}</p><div class="proj-stats">${p.stats.map(x => `<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div></div></article>`).join('')}</div>
+  <p class="note">Photos et chiffres de démonstration, à remplacer par les images et bilans de terrain.</p>
 </div></section>
 <section class="sec dark" id="soutenir"><div class="wrap">
-  ${secHead('Simulateur d’impact', 'Voyez ce que <em>votre don rend possible.</em>')}
+  ${secHead('Faire un don', 'Voyez ce que <em>votre don rend possible.</em>')}
   <div class="impact-sim">
     <form class="panel" id="oForm" style="background:rgba(255,255,255,.05)" novalidate>
       <div class="chips" id="oCamps" style="margin-bottom:18px">${D.campaigns.map((c, i) => `<button type="button" class="chip" aria-pressed="${(q.c || 'rentree') === c.id}" data-oc="${c.id}">${c.name}</button>`).join('')}</div>
-      <label class="field"><span>Montant de la promesse</span><div class="budget-out"><b class="big-num" id="oAmtOut"></b></div><input type="range" id="oAmt" min="50000" max="10000000" step="50000" value="500000"></label>
+      <div class="field" style="margin-bottom:16px"><span>Fréquence</span><div class="seg" id="oFreq"><button type="button" data-v="unique" aria-pressed="true">Don unique</button><button type="button" data-v="mensuel" aria-pressed="false">Chaque mois</button></div></div>
+      <label class="field"><span>Montant du don</span><div class="budget-out"><b class="big-num" id="oAmtOut"></b></div><input type="range" id="oAmt" min="50000" max="10000000" step="50000" value="500000"></label>
       <div class="chips" style="margin-top:12px">${[100000, 250000, 500000, 1000000, 5000000].map(v => `<button type="button" class="chip" data-amt="${v}">${fmtM(v)}</button>`).join('')}</div>
-      <div class="fields" style="margin-top:20px"><label class="field"><span>Nom</span><input name="nom" required autocomplete="name"></label><label class="field"><span>Téléphone</span><input name="tel" type="tel" required autocomplete="tel" placeholder="+224 …"></label></div>
-      <button class="btn btn-block" style="margin-top:18px;--b:var(--accent-2);color:#1d1013">Transmettre ma promesse</button>
-      <p class="note">Aucun paiement n’est encaissé sur le site. L’équipe vous communique les moyens officiels sur WhatsApp.</p>
+      <button class="btn btn-block" id="oGive" style="margin-top:22px;--b:#fff;color:#4b0f18">Donner</button>
+      <button type="button" class="link" id="oWa" style="margin-top:14px;color:inherit">Préférer une promesse de don par WhatsApp <span>→</span></button>
+      <p class="note">Paiement sécurisé par Orange Money, MTN Mobile Money, carte bancaire ou en agence.</p>
     </form>
     <div aria-live="polite">
       <div class="impact-out"><div><b id="oUnits">0</b><span id="oUnitL"></span></div><div><b id="oShare">0 %</b><span>de l’objectif restant couvert</span></div></div>
@@ -1020,7 +1056,8 @@ ${subnav([['mission', 'Mission'], ['campagnes', 'Campagnes'], ['soutenir', 'Simu
 ${ctaBand('Devenir <em>partenaire.</em>', 'Entreprises, fondations, écoles, centres de santé : construisons une action ensemble.', waBtn('Proposer un partenariat', 'Bonjour Jess Children and Women, notre structure souhaite devenir partenaire.', 'btn btn-light'))}
 `,
     init(q) {
-      let camp = D.campaigns.find(c => c.id === q.c) || D.campaigns[0]; const amt = $('#oAmt');
+      let camp = D.campaigns.find(c => c.id === q.c) || D.campaigns[0], freq = 'unique'; const amt = $('#oAmt');
+      segBind($('#oFreq'), v => { freq = v; sim(); });
       const sim = () => {
         setRange(amt); const a = +amt.value, units = Math.floor(a / camp.unit), left = camp.goal - camp.raised;
         $('#oAmtOut').textContent = fmt(a);
@@ -1028,6 +1065,7 @@ ${ctaBand('Devenir <em>partenaire.</em>', 'Entreprises, fondations, écoles, cen
         $('#oUnits').textContent = units; $('#oUnitL').textContent = lbl;
         $('#oShare').textContent = Math.min(100, a / left * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
         $('#oDots').innerHTML = [...Array(Math.min(units, 60))].map((_, i) => `<i style="animation-delay:${i * 15}ms"></i>`).join('') + (units > 60 ? `<span class="small">+${units - 60}</span>` : '');
+        $('#oGive').textContent = `Donner ${fmt(a)}${freq === 'mensuel' ? ' par mois' : ''}`;
         $('#oStory').innerHTML = units ? `Avec <b>${fmt(a)}</b>, vous financez <b>${units} ${lbl}</b> pour la campagne « ${camp.name} ».` : `Chaque geste compte : à partir de <b>${fmt(camp.unit)}</b>, vous financez 1 ${camp.unitLabel}.`;
       };
       const setCamp = id => { camp = D.campaigns.find(c => c.id === id); $$('[data-oc]').forEach(b => b.setAttribute('aria-pressed', b.dataset.oc === id)); sim(); };
@@ -1035,7 +1073,12 @@ ${ctaBand('Devenir <em>partenaire.</em>', 'Entreprises, fondations, écoles, cen
       $$('[data-amt]').forEach(b => b.addEventListener('click', () => { amt.value = b.dataset.amt; sim(); }));
       $$('[data-camp]').forEach(b => b.addEventListener('click', () => { setCamp(b.dataset.camp); scrollToId('soutenir'); }));
       amt.addEventListener('input', sim); sim();
-      $('#oForm').addEventListener('submit', e => { e.preventDefault(); const f = e.target; if (!valid(f)) return; const d = formData(f); openWA(waMsg('Jess Children and Women', 'Je souhaite faire une promesse de don :', [['Campagne', camp.name], ['Montant', fmt(+amt.value)], ['Impact estimé', `${Math.floor(+amt.value / camp.unit)} × ${camp.unitLabel}`], ['Nom', d.nom], ['Téléphone', d.tel]])); });
+      $('#oForm').addEventListener('submit', e => { e.preventDefault(); const a = +amt.value, units = Math.floor(a / camp.unit);
+        openCheckout({ kind: 'don', team: 'Jess Children and Women', title: `Don · ${camp.name}`, total: a,
+          lines: [[`${freq === 'mensuel' ? 'Don mensuel' : 'Don unique'} · ${camp.name}`, a]],
+          note: units ? `Impact estimé : ${units} ${units > 1 ? camp.unitPlural : camp.unitLabel}.` : '',
+          meta: { campagne: camp.id, frequence: freq } }); });
+      $('#oWa').addEventListener('click', () => openWA(waMsg('Jess Children and Women', 'Je souhaite faire une promesse de don :', [['Campagne', camp.name], ['Montant', fmt(+amt.value)], ['Fréquence', freq === 'mensuel' ? 'mensuelle' : 'unique']])));
       /* progression animée */
       const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.style.setProperty('--v', en.target.dataset.v); io.unobserve(en.target); } }), { threshold: .4 });
       $$('.ring[data-v]').forEach(r => io.observe(r)); observers.push(io);
@@ -1063,13 +1106,13 @@ function viewNews() {
   };
 }
 function viewContact(q) {
-  const teams = [...D.services.map(s => [s.id, s.icon, s.name, s.label]), ['autre', '💬', 'Autre demande', 'Jess Holding']];
+  const teams = [...D.services.map(s => [s.id, '', s.name, s.label]), ['autre', '', 'Autre demande', 'Jess Holding']];
   return {
     u: 'holding', title: 'Contact — Jess Holding',
     html: `<section class="page-top"><div class="wrap"><p class="kicker">Contact</p><h1 class="d1" data-split>Trouvons le bon <em>point de départ.</em></h1><p class="lead rv" style="--i:3;margin-top:18px">Choisissez le sujet : votre message arrive directement à l’équipe concernée.</p></div></section>
 <section class="sec-tight" style="padding-top:0"><div class="wrap split" style="align-items:start">
   <form class="panel" id="cForm" novalidate>
-    <div class="field"><span>Votre besoin</span><div class="route-cards" id="cTeams">${teams.map(t => `<button type="button" data-team="${t[0]}" aria-pressed="false"><i>${t[1]}</i><b>${t[2]}</b></button>`).join('')}</div></div>
+    <div class="field"><span>Votre besoin</span><div class="route-cards" id="cTeams">${teams.map(t => `<button type="button" data-team="${t[0]}" aria-pressed="false">${BUL}<b>${t[2]}</b></button>`).join('')}</div></div>
     <div id="cTeam"></div>
     <div class="fields" style="margin-top:16px"><label class="field"><span>Nom</span><input name="nom" required autocomplete="name"></label><label class="field"><span>Téléphone</span><input name="tel" type="tel" required autocomplete="tel" placeholder="+224 …"></label><label class="field full"><span>Message</span><textarea name="msg" required>${esc(q.msg || '')}</textarea></label></div>
     <button class="btn btn-wa btn-block" style="margin-top:18px">Envoyer sur WhatsApp</button>
@@ -1081,7 +1124,7 @@ function viewContact(q) {
 </div></section>`,
     init() {
       let team = 'autre';
-      const pick = id => { team = id; $$('[data-team]').forEach(b => b.setAttribute('aria-pressed', b.dataset.team === id)); const s = svc(id); $('#cTeam').innerHTML = `<div class="team-card"><i>${s ? s.icon : '💬'}</i><div><b>${s ? s.label : 'Accueil Jess Holding'}</b><br><span class="small muted">${s ? s.desc : 'Nous orientons votre demande vers la bonne équipe.'}</span></div>${s ? `<a class="link" style="margin-left:auto" href="#${s.route}">Voir <span>→</span></a>` : ''}</div>`; };
+      const pick = id => { team = id; $$('[data-team]').forEach(b => b.setAttribute('aria-pressed', b.dataset.team === id)); const s = svc(id); $('#cTeam').innerHTML = `<div class="team-card"><i>${BUL}</i><div><b>${s ? s.label : 'Accueil Jess Holding'}</b><br><span class="small muted">${s ? s.desc : 'Nous orientons votre demande vers la bonne équipe.'}</span></div>${s ? `<a class="link" style="margin-left:auto" href="#${s.route}">Voir <span>→</span></a>` : ''}</div>`; };
       $$('[data-team]').forEach(b => b.addEventListener('click', () => pick(b.dataset.team)));
       const guess = analyze(new URLSearchParams(location.hash.split('?')[1] || '').get('msg') || '')[0];
       pick(guess ? guess.s.id : 'autre');
@@ -1167,8 +1210,9 @@ function enhance(root) {
     requestAnimationFrame(step);
   }), { threshold: .5 });
   $$('[data-count]', root).forEach(el => cio.observe(el)); observers.push(cio);
-  /* sliders */
+  /* sliders et carrousels */
   $$('input[type=range]', root).forEach(setRange);
+  initCarousels(root);
   /* sous-navigation active */
   const links = $$('.subnav a', root);
   if (links.length) {
@@ -1178,6 +1222,199 @@ function enhance(root) {
 }
 function segBind(seg, fn) { seg.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; $$('button[data-v]', seg).forEach(x => x.setAttribute('aria-pressed', x === b)); fn(b.dataset.v); }); }
 
+/* ---------- carrousel d'images ---------- */
+function carousel(images, alt) {
+  return `<div class="car" data-car><div class="car-track" tabindex="0" aria-label="Photos : ${esc(alt)}">${images.map((im, i) => `<figure class="car-slide"><img src="${im.src}" alt="${esc(alt)} — photo ${i + 1}" loading="lazy" decoding="async" style="object-position:${im.pos || 'center'}"></figure>`).join('')}</div>
+  <button type="button" class="car-btn prev" aria-label="Photo précédente">←</button><button type="button" class="car-btn next" aria-label="Photo suivante">→</button>
+  <div class="car-foot"><div class="car-dots">${images.map((_, i) => `<button type="button" aria-label="Photo ${i + 1}" ${i ? '' : 'aria-current="true"'}></button>`).join('')}</div><span class="car-count">1 / ${images.length}</span></div></div>`;
+}
+function initCarousels(root) {
+  $$('[data-car]', root).forEach(c => {
+    const tr = $('.car-track', c), dots = $$('.car-dots button', c), n = dots.length; let i = 0, hover = false;
+    const go = k => { i = (k + n) % n; tr.scrollTo({ left: i * tr.clientWidth, behavior: reduced ? 'auto' : 'smooth' }); };
+    tr.addEventListener('scroll', () => { const k = Math.round(tr.scrollLeft / tr.clientWidth); if (k !== i || true) { i = k; dots.forEach((d, j) => d.toggleAttribute('aria-current', j === k)); $('.car-count', c).textContent = `${k + 1} / ${n}`; } }, { passive: true });
+    $('.prev', c).addEventListener('click', () => go(i - 1)); $('.next', c).addEventListener('click', () => go(i + 1));
+    dots.forEach((d, j) => d.addEventListener('click', () => go(j)));
+    c.addEventListener('pointerenter', () => hover = true); c.addEventListener('pointerleave', () => hover = false);
+    if (!reduced) addTimer(setInterval(() => { const r = c.getBoundingClientRect(); if (!hover && r.top < innerHeight && r.bottom > 0 && document.visibilityState === 'visible') go(i + 1); }, 5000));
+  });
+}
+
+/* ---------- billets d'avion (moteur de démonstration, prêt pour une API GDS) ---------- */
+const AIRLINE_HUB = { AF: 'CDG', AT: 'CMN', SN: 'BRU', TK: 'IST', KP: 'LFW', HF: 'ABJ', HC: 'DSS', ET: 'ADD', EK: 'DXB' };
+function findAirport(v) {
+  const m = String(v).match(/\(([A-Z]{3})\)/), n = norm(v).replace(/\(.*\)/, '').trim();
+  const a = m ? D.airports.find(x => x[0] === m[1]) : D.airports.find(x => norm(x[1]) === n) || (n.length > 2 && D.airports.find(x => norm(x[1]).startsWith(n) || x[0].toLowerCase() === n));
+  return a ? { code: a[0], city: a[1], country: a[2], lat: a[3], lon: a[4] } : (n ? { code: n.slice(0, 3).toUpperCase(), city: String(v).trim(), country: '', free: true } : null);
+}
+function distKm(a, b) {
+  if (a.free || b.free) return 5200;
+  const r = Math.PI / 180, dl = (b.lat - a.lat) * r, dn = (b.lon - a.lon) * r;
+  const h = Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+const hm = m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`;
+const dur = m => `${Math.floor(m / 60)} h ${pad(m % 60)}`;
+function makeLeg(A, B, date, al, k, seed) {
+  const km = distKm(A, B), hub = AIRLINE_HUB[al[0]];
+  const via = km > 1500 && hub !== A.code && hub !== B.code && (k % 3 !== 0 || km > 7000) ? hub : '';
+  const h = hash(seed + al[0] + k), dep = 6 * 60 + (h % 15) * 60 + (h % 4) * 15;
+  const time = Math.round(km / 760 * 60 + 35 + (via ? 95 + h % 150 : 0));
+  return { al, num: `${al[0]} ${100 + h % 899}`, from: A.code, to: B.code, via, dep, arr: dep + time, time, date };
+}
+function searchFlights(o) {
+  const km = distKm(o.A, o.B), seed = o.A.code + o.B.code + o.go;
+  const pool = [...D.airlines].sort((x, y) => hash(seed + x[0]) - hash(seed + y[0])).slice(0, 5);
+  return pool.map((al, k) => {
+    const out = makeLeg(o.A, o.B, o.go, al, k, seed), back = o.rt ? makeLeg(o.B, o.A, o.back, al, k, seed + 'r') : null;
+    const base = (850000 + km * 1250) * (out.via ? 0.92 : 1.08) * (0.9 + (hash(seed + al[0]) % 25) / 100) * o.cls;
+    const unit = Math.round(base * (o.rt ? 1.8 : 1) / 10000) * 10000;
+    const total = unit * o.pax.ad + Math.round(unit * .75) * o.pax.ch + Math.round(unit * .1) * o.pax.in;
+    return { id: k, al, out, back, unit, total, bag: o.cls > 1 ? '2 × 23 kg' : '1 × 23 kg' };
+  });
+}
+function initFlights(q) {
+  const f = $('#fSearch'); if (!f) return;
+  const go = $('#fGo'), back = $('#fBack'), pax = { ad: 1, ch: 0, in: 0 }; let rt = true, offers = [], sort = 'price', directOnly = false, last = null;
+  const t0 = addDays(today(), 14); go.min = back.min = iso(addDays(today(), 1)); go.value = iso(t0); back.value = iso(addDays(t0, 10));
+  const paxLabel = () => [pax.ad && `${pax.ad} adulte${pax.ad > 1 ? 's' : ''}`, pax.ch && `${pax.ch} enfant${pax.ch > 1 ? 's' : ''}`, pax.in && `${pax.in} bébé${pax.in > 1 ? 's' : ''}`].filter(Boolean).join(', ');
+  segBind($('#fTrip'), v => { rt = v === 'rt'; $('#fBackWrap').hidden = !rt; back.required = rt; });
+  back.required = true;
+  go.addEventListener('change', () => { back.min = go.value; if (back.value < go.value) back.value = iso(addDays(new Date(go.value), 7)); });
+  $('#fSwap').addEventListener('click', () => { const a = $('#fFrom').value; $('#fFrom').value = $('#fTo').value; $('#fTo').value = a; });
+  const pop = $('#fPop'), pb = $('#fPaxBtn');
+  pb.addEventListener('click', () => { pop.hidden = !pop.hidden; pb.setAttribute('aria-expanded', !pop.hidden); });
+  $('#fPaxOk').addEventListener('click', () => { pop.hidden = true; pb.setAttribute('aria-expanded', 'false'); pb.focus(); });
+  addListener(document, 'click', e => { if (!e.target.closest('.fs-pax')) { pop.hidden = true; pb.setAttribute('aria-expanded', 'false'); } });
+  $$('[data-px]', f).forEach(b => b.addEventListener('click', () => {
+    const [k, d] = b.dataset.px.split('|'); const v = pax[k] + +d;
+    if (k === 'ad' && (v < 1 || v + pax.ch > 9)) return; if (k === 'ch' && (v < 0 || v + pax.ad > 9)) return;
+    if (k === 'in' && (v < 0 || v > pax.ad)) { if (v > pax.ad) toast('Un bébé voyage sur les genoux d’un adulte : un bébé maximum par adulte.'); return; }
+    pax[k] = v; $(`[data-pxo="${k}"]`, f).textContent = v; pb.textContent = paxLabel();
+  }));
+  const draw = () => {
+    let list = offers.filter(o => !directOnly || (!o.out.via && (!o.back || !o.back.via)));
+    list = [...list].sort((a, b) => sort === 'price' ? a.total - b.total : sort === 'fast' ? a.out.time - b.out.time : a.out.dep - b.out.dep);
+    const legHtml = (l, lab) => `<div class="fr-leg"><span class="fr-lab">${lab}</span><div class="fr-t"><b>${hm(l.dep)}</b><small>${l.from}</small></div><div class="fr-line"><small>${dur(l.time)}</small><i></i><small>${l.via ? '1 escale · ' + l.via : 'Direct'}</small></div><div class="fr-t"><b>${hm(l.arr)}${l.arr >= 1440 ? '<sup>+1</sup>' : ''}</b><small>${l.to}</small></div></div>`;
+    $('#fList').innerHTML = list.length ? list.map(o => `<article class="fr"><div class="fr-air"><span class="fr-code">${o.al[0]}</span><div><b>${o.al[1]}</b><small>${o.out.num} · Bagage ${o.bag}</small></div></div><div class="fr-legs">${legHtml(o.out, 'Aller')}${o.back ? legHtml(o.back, 'Retour') : ''}</div><div class="fr-price"><b>${fmt(o.total)}</b><small>total · ${paxLabel()}</small><button class="btn btn-sm" data-fly="${o.id}">Choisir</button></div></article>`).join('')
+      : '<p class="muted">Aucun vol direct pour cette recherche. Décochez « Vols directs uniquement ».</p>';
+  };
+  const run = () => {
+    if (!valid(f)) return;
+    const A = findAirport($('#fFrom').value), B = findAirport($('#fTo').value);
+    if (!A || !B) { toast('Indiquez une ville de départ et une destination'); return; }
+    if (A.code === B.code && !A.free) { toast('Le départ et l’arrivée doivent être différents'); return; }
+    last = { A, B, go: go.value, back: rt ? back.value : '', rt, cls: +$('#fClass').value, clsName: $('#fClass').selectedOptions[0].text, pax: { ...pax } };
+    offers = searchFlights(last);
+    $('#fResults').innerHTML = `<div class="fr-head"><div><b class="d3">${esc(A.city)} → ${esc(B.city)}</b><div class="small muted">${dLong(new Date(go.value + 'T12:00'))}${rt ? ' — ' + dLong(new Date(back.value + 'T12:00')) : ' · aller simple'} · ${paxLabel()} · ${last.clsName}</div></div>
+      <div class="fr-tools"><div class="seg" id="fSort"><button type="button" data-v="price" aria-pressed="true">Meilleur prix</button><button type="button" data-v="fast" aria-pressed="false">Plus rapide</button><button type="button" data-v="early" aria-pressed="false">Départ tôt</button></div><label class="fr-direct"><input type="checkbox" id="fDirect"> Vols directs uniquement</label></div></div>
+      <div class="fr-list" id="fList"></div>
+      <p class="note">${A.free || B.free ? 'Aéroport non répertorié : tarif estimé, confirmé par un conseiller. ' : ''}Horaires et tarifs de démonstration en attendant la connexion au système de réservation des compagnies.</p>`;
+    sort = 'price'; directOnly = false;
+    segBind($('#fSort'), v => { sort = v; draw(); });
+    $('#fDirect').addEventListener('change', e => { directOnly = e.target.checked; draw(); });
+    draw();
+    $('#fResults').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  };
+  f.addEventListener('submit', e => { e.preventDefault(); run(); });
+  addListener($('#fResults'), 'click', e => {
+    const b = e.target.closest('[data-fly]'); if (!b) return;
+    const o = offers.find(x => x.id === +b.dataset.fly), P = last.pax, fee = 50000;
+    const lines = [[`${P.ad} adulte${P.ad > 1 ? 's' : ''}`, o.unit * P.ad]];
+    if (P.ch) lines.push([`${P.ch} enfant${P.ch > 1 ? 's' : ''} (−25 %)`, Math.round(o.unit * .75) * P.ch]);
+    if (P.in) lines.push([`${P.in} bébé${P.in > 1 ? 's' : ''}`, Math.round(o.unit * .1) * P.in]);
+    lines.push(['Frais de service Jess Voyages', fee]);
+    openCheckout({ kind: 'billet', team: 'Jess Voyages', title: `${last.A.city} → ${last.B.city}`, total: o.total + fee, lines,
+      note: `${o.al[1]} · ${o.out.num} · départ ${dLong(new Date(last.go + 'T12:00'))} à ${hm(o.out.dep)}${o.back ? ' · retour ' + dLong(new Date(last.back + 'T12:00')) + ' à ' + hm(o.back.dep) : ''} · ${last.clsName}`,
+      passengers: [...Array(P.ad).fill('Adulte'), ...Array(P.ch).fill('Enfant'), ...Array(P.in).fill('Bébé')],
+      meta: { compagnie: o.al[0], vol: o.out.num, de: last.A.code, vers: last.B.code, aller: last.go, retour: last.back, classe: last.clsName } });
+  });
+  if (q.to) run();
+}
+
+/* ---------- tunnel de paiement ---------- */
+function openCheckout(order) {
+  const P = window.JESS_PAY, pax = order.passengers || [];
+  const steps = [...(pax.length ? ['Passagers'] : []), 'Coordonnées', 'Paiement', 'Confirmation'];
+  let step = 0, method = P.methods[0].id;
+  const sum = `<div class="co-sum">${order.lines.map(l => `<div class="rowx"><span>${esc(l[0])}</span><b>${fmt(l[1])}</b></div>`).join('')}<div class="tot"><span>Total</span><b class="big-num">${fmt(order.total)}</b></div>${order.note ? `<p class="small muted" style="margin:10px 0 0">${esc(order.note)}</p>` : ''}</div>`;
+  const paxHtml = pax.map((t, i) => `<fieldset class="co-pax"><legend>Passager ${i + 1} · ${t}</legend><div class="fields">
+    <label class="field"><span>Civilité</span><select name="p${i}_civ"><option>M.</option><option>Mme</option></select></label>
+    <label class="field"><span>Date de naissance</span><input type="date" name="p${i}_dob" required max="${iso(today())}"></label>
+    <label class="field"><span>Prénom(s)</span><input name="p${i}_first" required autocomplete="${i ? 'off' : 'given-name'}"></label>
+    <label class="field"><span>Nom</span><input name="p${i}_last" required autocomplete="${i ? 'off' : 'family-name'}"></label>
+    <label class="field full"><span>N° de passeport (facultatif)</span><input name="p${i}_pp" autocomplete="off"></label></div></fieldset>`).join('');
+  $('#drawerBody').innerHTML = `<p class="kicker">Paiement sécurisé · ${esc(order.team)}</p><h2 class="d3" id="drawerTitle" style="margin-bottom:18px">${esc(order.title)}</h2>
+    <ol class="co-steps">${steps.map((s, i) => `<li class="${i ? '' : 'on'}">${s}</li>`).join('')}</ol>
+    <form id="coForm" novalidate>
+      ${pax.length ? `<div class="wpane on" data-co="0"><p class="small muted">Saisissez les noms exactement comme sur les passeports.</p>${paxHtml}</div>` : ''}
+      <div class="wpane ${pax.length ? '' : 'on'}" data-co="${pax.length ? 1 : 0}"><div class="fields">
+        <label class="field full"><span>Nom complet</span><input name="name" required autocomplete="name"></label>
+        <label class="field"><span>Téléphone</span><input name="phone" type="tel" required autocomplete="tel" placeholder="+224 …"></label>
+        <label class="field"><span>E-mail</span><input name="email" type="email" ${order.kind === 'billet' ? 'required' : ''} autocomplete="email" placeholder="Pour recevoir le reçu"></label>
+        ${order.kind === 'don' ? '<label class="co-check full"><input type="checkbox" name="anon"><span>Faire ce don de manière anonyme</span></label>' : ''}
+      </div></div>
+      <div class="wpane" data-co="${pax.length ? 2 : 1}">
+        ${P.mode !== 'live' ? '<p class="co-demo">Mode démonstration : aucun débit ne sera effectué.</p>' : ''}
+        <div class="co-methods" role="radiogroup" aria-label="Moyen de paiement">${P.methods.map((m, i) => `<label class="co-m"><input type="radio" name="method" value="${m.id}" ${i ? '' : 'checked'}><span class="bul"></span><span><b>${m.label}</b><small>${m.hint}</small></span></label>`).join('')}</div>
+        <label class="field" id="coPhoneW" style="margin-top:14px"><span>Numéro mobile money</span><input name="payphone" type="tel" placeholder="+224 6__ __ __ __" autocomplete="tel"></label>
+        <label class="co-check" style="margin-top:14px"><input type="checkbox" name="cgv" required><span>J’accepte les conditions de vente et la politique de confidentialité.</span></label>
+      </div>
+      ${sum}
+      <p class="co-err" role="alert"></p>
+      <div class="actions co-actions"><button type="button" class="btn btn-ghost" id="coPrev" hidden>← Retour</button><button class="btn" id="coNext" style="margin-left:auto">Continuer →</button></div>
+    </form>
+    <div class="co-done" id="coDone" hidden></div>`;
+  openDrawer();
+  const form = $('#coForm'), panes = $$('[data-co]', form), lis = $$('.co-steps li'), payIdx = panes.length - 1;
+  const setStep = n => {
+    step = n; panes.forEach((p, i) => p.classList.toggle('on', i === n)); lis.forEach((l, i) => l.classList.toggle('on', i <= n));
+    $('#coPrev').hidden = n === 0; $('#coNext').textContent = n === payIdx ? `Payer ${fmt(order.total)}` : 'Continuer →';
+    $('.drawer-panel').scrollTop = 0;
+  };
+  const togglePhone = () => { const m = P.methods.find(x => x.id === method); $('#coPhoneW').hidden = !m.phone; form.payphone.required = !!m.phone; };
+  $$('input[name=method]', form).forEach(r => r.addEventListener('change', () => { method = r.value; togglePhone(); }));
+  togglePhone();
+  $('#coPrev').addEventListener('click', () => setStep(step - 1));
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); $('.co-err').textContent = '';
+    const fields = $$('input,select', panes[step]);
+    for (const el of fields) if (!el.checkValidity()) { el.reportValidity(); return; }
+    if (step < payIdx) { if (step === 0 && pax.length) { const d = formData(form); if (!form.name.value) form.name.value = `${d.p0_first || ''} ${d.p0_last || ''}`.trim(); } setStep(step + 1); return; }
+    const d = formData(form), btn = $('#coNext');
+    btn.disabled = true; btn.textContent = 'Paiement en cours…';
+    const payload = { kind: order.kind, title: order.title, amount: order.total, currency: P.currency, method, phone: d.payphone || '',
+      customer: { name: d.name, email: d.email, phone: d.phone, anonymous: !!d.anon },
+      items: order.lines.map(l => ({ label: l[0], amount: l[1] })), passengers: pax.map((t, i) => ({ type: t, civ: d[`p${i}_civ`], first: d[`p${i}_first`], last: d[`p${i}_last`], dob: d[`p${i}_dob`], passport: d[`p${i}_pp`] })), meta: order.meta || {} };
+    try {
+      const r = await P.createCheckout(payload);
+      if (r.status === 'redirect') return;
+      lis.forEach(l => l.classList.add('on'));
+      form.hidden = true;
+      const mlabel = P.methods.find(x => x.id === method).label;
+      $('#coDone').hidden = false;
+      $('#coDone').innerHTML = `<div class="co-ok" aria-hidden="true"></div><h3 class="d3">${order.kind === 'don' ? 'Merci pour votre générosité.' : 'Votre réservation est enregistrée.'}</h3>
+        <p class="muted">${r.status === 'demo' ? 'Paiement simulé (mode démonstration). ' : ''}Référence <b>${esc(r.reference)}</b> · ${esc(mlabel)}</p>${sum}
+        <div class="actions" style="margin-top:18px"><button class="btn" id="coPrint">Imprimer le reçu</button>${waBtn('Envoyer à l’équipe', waMsg(order.team, `Voici ma ${order.kind === 'don' ? 'confirmation de don' : 'réservation'} :`, [['Référence', r.reference], ['Objet', order.title], ['Montant', fmt(order.total)], ['Moyen de paiement', mlabel], ['Nom', d.name], ['Téléphone', d.phone], ['Détails', order.note || '']]), 'btn btn-ghost')}</div>`;
+      $('#coPrint').addEventListener('click', () => printReceipt(order, r.reference, mlabel, d));
+    } catch (err) {
+      $('.co-err').textContent = err.message || 'Le paiement n’a pas pu aboutir. Réessayez ou choisissez un autre moyen.';
+      btn.disabled = false; btn.textContent = `Payer ${fmt(order.total)}`;
+    }
+  });
+  setStep(0);
+}
+function printReceipt(order, ref, method, d) {
+  const w = window.open('', '_blank'); if (!w) { toast('Autorisez les fenêtres pour imprimer le reçu'); return; }
+  w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Reçu ${esc(ref)}</title><style>body{font:300 15px/1.6 Montserrat,Arial,sans-serif;color:#1d1013;max-width:640px;margin:40px auto;padding:0 20px}h1{font-weight:700;color:#7b1a2a;margin:0}table{width:100%;border-collapse:collapse;margin:24px 0}td{padding:10px 0;border-bottom:1px solid #ddd}td:last-child{text-align:right;font-weight:700}.t td{border:0;font-size:1.2em;color:#7b1a2a}small{color:#6e6e73}</style></head><body>
+    <h1>Jess Holding</h1><small>${esc(order.team)} · Nongo, Conakry · ${esc(D.phone)}</small>
+    <h2 style="margin-top:32px">Reçu ${esc(ref)}</h2><p>${esc(order.title)}<br>${esc(order.note || '')}</p>
+    <p>Client : ${esc(d.name)} · ${esc(d.phone)}${d.email ? ' · ' + esc(d.email) : ''}<br>Moyen de paiement : ${esc(method)}<br>Date : ${new Date().toLocaleString('fr-FR')}</p>
+    <table>${order.lines.map(l => `<tr><td>${esc(l[0])}</td><td>${fmt(l[1])}</td></tr>`).join('')}<tr class="t"><td>Total</td><td>${fmt(order.total)}</td></tr></table>
+    <small>${window.JESS_PAY.mode !== 'live' ? 'Document de démonstration — aucun paiement réel.' : ''}</small><script>print()<\/script></body></html>`);
+  w.document.close();
+}
+
 /* ---------- tiroir ---------- */
 let lastFocus;
 function openDrawer(html) { const d = $('#drawer'); if (html) $('#drawerBody').innerHTML = html; lastFocus = document.activeElement; d.classList.add('open'); d.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; setTimeout(() => $('.drawer-x').focus(), 50); }
@@ -1186,7 +1423,7 @@ $$('[data-close-drawer]').forEach(b => b.addEventListener('click', closeDrawer))
 
 /* ---------- en-tête, méga-menu, menu mobile ---------- */
 const hdr = $('#hdr'), mega = $('#mega');
-mega.innerHTML = D.filiales.map(f => `<div class="mega-col"><h4>${f.name}</h4>${D.services.filter(s => s.fil === f.id).map(s => `<a href="#${s.route}"><i>${s.icon}</i><span><b>${s.name}</b><small>${s.desc}</small></span></a>`).join('')}</div>`).join('');
+mega.innerHTML = D.filiales.map(f => `<div class="mega-col"><h4>${f.name}</h4>${D.services.filter(s => s.fil === f.id).map(s => `<a href="#${s.route}"><i>${BUL}</i><span><b>${s.name}</b><small>${s.desc}</small></span></a>`).join('')}</div>`).join('');
 const megaBtn = $('[data-mega]'), burger = $('[data-burger]'), nav = $('#nav');
 function closeMenus() { mega.hidden = true; megaBtn.setAttribute('aria-expanded', 'false'); nav.classList.remove('open'); document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false'); }
 megaBtn.addEventListener('click', e => { e.stopPropagation(); const open = mega.hidden; mega.hidden = !open; megaBtn.setAttribute('aria-expanded', open); });
@@ -1233,31 +1470,32 @@ document.addEventListener('click', e => {
 const cmdk = $('#cmdk'), cIn = $('#cmdkInput'), cList = $('#cmdkList');
 const actions = [
   ...D.services.map(s => ({ g: 'Services', i: s.icon, t: s.name, s: s.label + ' · ' + s.desc, href: '#' + s.route })),
-  { g: 'Actions rapides', i: '🔎', t: 'Suivre un colis', s: 'Référence JESS-…', href: '#/colis#suivi' },
-  { g: 'Actions rapides', i: '⚖', t: 'Estimer un envoi', s: 'Prix au kilo en direct', href: '#/colis#estimer' },
-  { g: 'Actions rapides', i: '🗺', t: 'Planifier un voyage', s: 'Budget, dates et destination', href: '#/voyages#planifier' },
-  { g: 'Actions rapides', i: '🛂', t: 'Préparer mon visa', s: 'Checklist par motif', href: '#/voyages#visa' },
-  { g: 'Actions rapides', i: '📅', t: 'Réserver un soin', s: 'Jour et créneau libres', href: '#/beaute#reserver' },
-  { g: 'Actions rapides', i: '🛏', t: 'Disponibilités appartements', s: 'Calendrier et prix', href: '#/appartements#reserver' },
-  { g: 'Actions rapides', i: '📐', t: 'Estimer mon projet BTP', s: 'Budget et planning', href: '#/btp#estimer' },
-  { g: 'Actions rapides', i: '♥', t: 'Faire une promesse de don', s: 'Simulateur d’impact', href: '#/ong#soutenir' },
-  { g: 'Actions rapides', i: '🤝', t: 'Devenir bénévole', s: 'Missions selon vos compétences', href: '#/ong#benevolat' },
-  { g: 'Pages', i: '◎', t: 'Le groupe', s: 'Filiales et valeurs', href: '#/groupe' },
-  { g: 'Pages', i: '✎', t: 'Actualités', s: 'Le journal du groupe', href: '#/actualites' },
-  { g: 'Pages', i: '✉', t: 'Contact', s: 'Écrire à la bonne équipe', href: '#/contact' },
-  { g: 'Pages', i: '☎', t: 'Appeler Jess Holding', s: D.phone, href: 'tel:+224613131323' },
-  { g: 'Pages', i: '◐', t: 'Changer de thème', s: 'Clair / sombre', fn: toggleTheme }
+  { g: 'Actions rapides', i: '', t: 'Suivre un colis', s: 'Référence JESS-…', href: '#/colis#suivi' },
+  { g: 'Actions rapides', i: '', t: 'Estimer un envoi', s: 'Prix au kilo en direct', href: '#/colis#estimer' },
+  { g: 'Actions rapides', i: '', t: 'Réserver un billet d’avion', s: 'Départ et arrivée au choix', href: '#/voyages#billets' },
+  { g: 'Actions rapides', i: '', t: 'Planifier un voyage', s: 'Budget, dates et destination', href: '#/voyages#planifier' },
+  { g: 'Actions rapides', i: '', t: 'Préparer mon visa', s: 'Checklist par motif', href: '#/voyages#visa' },
+  { g: 'Actions rapides', i: '', t: 'Réserver un soin', s: 'Jour et créneau libres', href: '#/beaute#reserver' },
+  { g: 'Actions rapides', i: '', t: 'Disponibilités appartements', s: 'Calendrier et prix', href: '#/appartements#reserver' },
+  { g: 'Actions rapides', i: '', t: 'Estimer mon projet BTP', s: 'Budget et planning', href: '#/btp#estimer' },
+  { g: 'Actions rapides', i: '', t: 'Faire un don', s: 'Paiement mobile money ou carte', href: '#/ong#soutenir' },
+  { g: 'Actions rapides', i: '', t: 'Devenir bénévole', s: 'Missions selon vos compétences', href: '#/ong#benevolat' },
+  { g: 'Pages', i: '', t: 'Le groupe', s: 'Filiales et valeurs', href: '#/groupe' },
+  { g: 'Pages', i: '', t: 'Actualités', s: 'Le journal du groupe', href: '#/actualites' },
+  { g: 'Pages', i: '', t: 'Contact', s: 'Écrire à la bonne équipe', href: '#/contact' },
+  { g: 'Pages', i: '', t: 'Appeler Jess Holding', s: D.phone, href: 'tel:+224613131323' },
+  { g: 'Pages', i: '', t: 'Changer de thème', s: 'Clair / sombre', fn: toggleTheme }
 ];
 let cItems = [], cSel = 0;
 function cDraw() {
   const v = cIn.value, n = norm(v).trim();
-  const smart = analyze(v).map(r => ({ g: 'Suggestions', i: r.s.icon, t: r.s.label, s: r.action, href: r.href }));
+  const smart = analyze(v).map(r => ({ g: 'Suggestions', i: '', t: r.s.label, s: r.action, href: r.href }));
   const plain = actions.filter(a => !n || norm(a.t + ' ' + a.s).includes(n));
   cItems = [...smart, ...plain.filter(p => !smart.some(s => s.href === p.href))];
-  if (n && !cItems.length) cItems = [{ g: 'Aucun résultat', i: '💬', t: 'Demander à un conseiller', s: `« ${v} »`, href: `#/contact?msg=${encodeURIComponent(v)}` }];
+  if (n && !cItems.length) cItems = [{ g: 'Aucun résultat', i: '', t: 'Demander à un conseiller', s: `« ${v} »`, href: `#/contact?msg=${encodeURIComponent(v)}` }];
   cSel = Math.min(cSel, cItems.length - 1);
   let g = '';
-  cList.innerHTML = cItems.map((a, i) => `${a.g !== g ? `<li class="grp" role="presentation">${(g = a.g)}</li>` : ''}<li role="option" data-ci="${i}" aria-selected="${i === cSel}"><i>${a.i}</i><div><b>${esc(a.t)}</b><small>${esc(a.s)}</small></div><em>↵</em></li>`).join('');
+  cList.innerHTML = cItems.map((a, i) => `${a.g !== g ? `<li class="grp" role="presentation">${(g = a.g)}</li>` : ''}<li role="option" data-ci="${i}" aria-selected="${i === cSel}"><i>${BUL}</i><div><b>${esc(a.t)}</b><small>${esc(a.s)}</small></div><em>↵</em></li>`).join('');
   cList.querySelector('[aria-selected=true]')?.scrollIntoView({ block: 'nearest' });
 }
 function cGo(i) { const a = cItems[i]; if (!a) return; cmdk.close(); if (a.fn) a.fn(); else if (a.href.startsWith('#')) location.hash = a.href.slice(1); else location.href = a.href; }

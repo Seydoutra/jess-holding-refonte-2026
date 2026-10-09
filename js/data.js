@@ -11,25 +11,25 @@ window.JESS = {
     { id: 'ong', name: 'Jess Children and Women', short: 'Children & Women', logo: '', tagline: 'Agir pour les femmes et les enfants.' }
   ],
   services: [
-    { id: 'voyages', route: '/voyages', fil: 'voyages-services', name: 'Voyager', label: 'Jess Voyages', verb: 'voyager', icon: '✈', img: 'assets/img/services-voyage.jpg',
+    { id: 'voyages', route: '/voyages', fil: 'voyages-services', name: 'Voyager', label: 'Jess Voyages', verb: 'voyager', img: 'assets/img/services-voyage.jpg',
       desc: 'Billets, séjours sur mesure, visa et plan de paiement.',
       kw: ['voyage', 'voyager', 'billet', 'avion', 'vol', 'visa', 'sejour', 'hotel', 'vacances', 'paris', 'dubai', 'abidjan', 'londres', 'new york', 'marrakech', 'etudiant', 'partir', 'destination', 'tourisme', 'lune de miel', 'omra', 'hajj'] },
-    { id: 'colis', route: '/colis', fil: 'voyages-services', name: 'Envoyer un colis', label: 'Jess Colis', verb: 'expédier', icon: '📦', img: 'assets/img/famille-colis.jpg',
+    { id: 'colis', route: '/colis', fil: 'voyages-services', name: 'Envoyer un colis', label: 'Jess Colis', verb: 'expédier', img: 'assets/img/famille-colis.jpg',
       desc: 'Estimation au kilo, départs réguliers et suivi.',
       kw: ['colis', 'envoyer', 'envoi', 'expedier', 'expedition', 'kg', 'kilo', 'paquet', 'carton', 'fret', 'livraison', 'suivi', 'suivre', 'casablanca', 'cargo', 'valise', 'marchandise'] },
-    { id: 'beaute', route: '/beaute', fil: 'paradise', name: 'Beauté & spa', label: 'Jess Beauty', verb: 'sublimer', icon: '✦', img: 'assets/img/bien-etre.jpg',
+    { id: 'beaute', route: '/beaute', fil: 'paradise', name: 'Beauté & spa', label: 'Jess Beauty', verb: 'sublimer', img: 'assets/img/bien-etre.jpg',
       desc: 'Coiffure, onglerie, soins, massage et mise en beauté.',
       kw: ['beaute', 'coiffure', 'cheveux', 'tresse', 'tresses', 'manucure', 'pedicure', 'ongle', 'ongles', 'onglerie', 'spa', 'massage', 'soin', 'visage', 'maquillage', 'mariage', 'salon', 'brushing', 'epilation', 'rendez-vous', 'rdv'] },
-    { id: 'showroom', route: '/showroom', fil: 'paradise', name: 'Showroom', label: 'Jess Paradise Boutique', verb: 's’habiller', icon: '◇', img: 'assets/img/boutique.jpg',
+    { id: 'showroom', route: '/showroom', fil: 'paradise', name: 'Showroom', label: 'Jess Paradise Boutique', verb: 's’habiller', img: 'assets/img/boutique.jpg',
       desc: 'Vêtements, accessoires et parfums à réserver.',
       kw: ['boutique', 'showroom', 'robe', 'vetement', 'vetements', 'mode', 'parfum', 'ceinture', 'sac', 'acheter', 'tenue', 'pantalon', 'tailleur', 'accessoire', 'cadeau'] },
-    { id: 'appartements', route: '/appartements', fil: 'paradise', name: 'Appartements', label: 'Jess Séjours', verb: 'séjourner', icon: '⌂', img: 'assets/img/suite-kipe-v2.jpg',
+    { id: 'appartements', route: '/appartements', fil: 'paradise', name: 'Appartements', label: 'Jess Séjours', verb: 'séjourner', img: 'assets/img/suite-kipe-v2.jpg',
       desc: 'Studios et appartements meublés à la nuit à Conakry.',
       kw: ['appartement', 'studio', 'logement', 'louer', 'location', 'nuit', 'nuits', 'meuble', 'dormir', 'kaloum', 'kipe', 'nongo', 'airbnb', 'hebergement', 'chambre', 'suite'] },
-    { id: 'btp', route: '/btp', fil: 'paradise', name: 'BTP', label: 'Jess Paradise BTP', verb: 'bâtir', icon: '▲', img: 'assets/img/appartement-btp.jpg',
+    { id: 'btp', route: '/btp', fil: 'paradise', name: 'BTP', label: 'Jess Paradise BTP', verb: 'bâtir', img: 'assets/img/appartement-btp.jpg',
       desc: 'Construction, rénovation, extension et suivi de chantier.',
       kw: ['btp', 'construire', 'construction', 'maison', 'villa', 'batiment', 'renovation', 'renover', 'chantier', 'terrain', 'plan', 'extension', 'etage', 'travaux', 'devis', 'immeuble', 'architecte'] },
-    { id: 'ong', route: '/ong', fil: 'ong', name: 'Agir avec l’ONG', label: 'Jess Children and Women', verb: 'agir', icon: '♥', img: 'assets/img/jess-children-women.jpg',
+    { id: 'ong', route: '/ong', fil: 'ong', name: 'Agir avec l’ONG', label: 'Jess Children and Women', verb: 'agir', img: 'assets/img/jess-children-women.jpg',
       desc: 'Éducation, santé, protection et autonomie des femmes et des enfants.',
       kw: ['ong', 'don', 'donner', 'donation', 'aider', 'aide', 'benevole', 'benevolat', 'enfant', 'enfants', 'femme', 'femmes', 'solidarite', 'humanitaire', 'association', 'partenaire', 'ecole', 'kits', 'cagnotte', 'soutenir'] }
   ],
@@ -117,12 +117,41 @@ window.JESS = {
 
   /* ONG */
   campaigns: [
-    { id: 'rentree', name: 'Rentrée pour toutes', cause: 'Éducation', raised: 35700000, goal: 85000000, unit: 120000, unitLabel: 'kit scolaire', unitPlural: 'kits scolaires', copy: 'Kits, fournitures et accompagnement scolaire des jeunes filles.', donors: 214 },
-    { id: 'meres', name: 'Mères en bonne santé', cause: 'Santé', raised: 85400000, goal: 140000000, unit: 250000, unitLabel: 'consultation prénatale', unitPlural: 'consultations prénatales', copy: 'Consultations, sensibilisation et orientation maternelle.', donors: 389 },
-    { id: 'metier', name: 'Un métier, un avenir', cause: 'Autonomie', raised: 87600000, goal: 120000000, unit: 1500000, unitLabel: 'formation complète', unitPlural: 'formations complètes', copy: 'Formation et équipement de femmes entrepreneures.', donors: 172 },
-    { id: 'enfance', name: 'Protéger l’enfance', cause: 'Protection', raised: 34200000, goal: 95000000, unit: 400000, unitLabel: 'mois d’écoute & suivi', unitPlural: 'mois d’écoute & suivi', copy: 'Écoute, orientation et espaces communautaires sûrs.', donors: 128 },
-    { id: 'urgence', name: 'Urgence familles', cause: 'Solidarité', raised: 40500000, goal: 75000000, unit: 300000, unitLabel: 'panier familial', unitPlural: 'paniers familiaux', copy: 'Aide de première nécessité pour les foyers fragilisés.', donors: 266 }
+    { id: 'rentree', img: 'assets/img/jess-children-women.jpg', pos: '20% 40%', name: 'Rentrée pour toutes', cause: 'Éducation', raised: 35700000, goal: 85000000, unit: 120000, unitLabel: 'kit scolaire', unitPlural: 'kits scolaires', copy: 'Kits, fournitures et accompagnement scolaire des jeunes filles.', donors: 214 },
+    { id: 'meres', img: 'assets/img/jess-children-women.jpg', pos: '55% 35%', name: 'Mères en bonne santé', cause: 'Santé', raised: 85400000, goal: 140000000, unit: 250000, unitLabel: 'consultation prénatale', unitPlural: 'consultations prénatales', copy: 'Consultations, sensibilisation et orientation maternelle.', donors: 389 },
+    { id: 'metier', img: 'assets/img/jess-children-women.jpg', pos: '85% 50%', name: 'Un métier, un avenir', cause: 'Autonomie', raised: 87600000, goal: 120000000, unit: 1500000, unitLabel: 'formation complète', unitPlural: 'formations complètes', copy: 'Formation et équipement de femmes entrepreneures.', donors: 172 },
+    { id: 'enfance', img: 'assets/img/jess-children-women.jpg', pos: '40% 70%', name: 'Protéger l’enfance', cause: 'Protection', raised: 34200000, goal: 95000000, unit: 400000, unitLabel: 'mois d’écoute & suivi', unitPlural: 'mois d’écoute & suivi', copy: 'Écoute, orientation et espaces communautaires sûrs.', donors: 128 },
+    { id: 'urgence', img: 'assets/img/jess-children-women.jpg', pos: '70% 20%', name: 'Urgence familles', cause: 'Solidarité', raised: 40500000, goal: 75000000, unit: 300000, unitLabel: 'panier familial', unitPlural: 'paniers familiaux', copy: 'Aide de première nécessité pour les foyers fragilisés.', donors: 266 }
   ],
+  /* Projets réalisés — remplacer « src » par les photos de terrain (assets/img/ong/…) */
+  projects: [
+    { title: 'Rentrée solidaire', place: 'Ratoma, Conakry', date: 'Septembre 2025', copy: 'Distribution de kits scolaires et séance de sensibilisation au maintien des filles à l’école.',
+      stats: [['320', 'kits distribués'], ['4', 'écoles partenaires'], ['60', 'bénévoles']],
+      images: [{ src: 'assets/img/jess-children-women.jpg', pos: '20% 40%' }, { src: 'assets/img/jess-children-women.jpg', pos: '60% 30%' }, { src: 'assets/img/jess-children-women.jpg', pos: '85% 60%' }, { src: 'assets/img/jess-children-women.jpg', pos: '40% 80%' }] },
+    { title: 'Journée santé des mères', place: 'Matoto, Conakry', date: 'Mars 2026', copy: 'Consultations prénatales, information nutritionnelle et orientation vers les centres de santé.',
+      stats: [['185', 'femmes reçues'], ['12', 'soignants'], ['1', 'journée']],
+      images: [{ src: 'assets/img/jess-children-women.jpg', pos: '55% 35%' }, { src: 'assets/img/jess-children-women.jpg', pos: '10% 60%' }, { src: 'assets/img/jess-children-women.jpg', pos: '75% 45%' }] },
+    { title: 'Femmes en action', place: 'Nongo, Conakry', date: 'Juin 2026', copy: 'Ateliers couture et gestion pour structurer une activité et mieux gérer ses revenus.',
+      stats: [['42', 'participantes'], ['8', 'semaines'], ['15', 'machines offertes']],
+      images: [{ src: 'assets/img/jess-children-women.jpg', pos: '85% 50%' }, { src: 'assets/img/jess-children-women.jpg', pos: '30% 25%' }, { src: 'assets/img/jess-children-women.jpg', pos: '65% 75%' }, { src: 'assets/img/jess-children-women.jpg', pos: '5% 30%' }] }
+  ],
+
+  /* Billets d'avion — aéroports proposés (saisie libre également possible) */
+  airports: [
+    ['CKY', 'Conakry', 'Guinée', 9.58, -13.61], ['DSS', 'Dakar', 'Sénégal', 14.67, -17.07], ['ABJ', 'Abidjan', 'Côte d’Ivoire', 5.26, -3.93], ['BKO', 'Bamako', 'Mali', 12.53, -7.95],
+    ['FNA', 'Freetown', 'Sierra Leone', 8.62, -13.2], ['ROB', 'Monrovia', 'Liberia', 6.23, -10.36], ['BJL', 'Banjul', 'Gambie', 13.34, -16.65], ['NKC', 'Nouakchott', 'Mauritanie', 18.31, -15.97],
+    ['OUA', 'Ouagadougou', 'Burkina Faso', 12.35, -1.51], ['NIM', 'Niamey', 'Niger', 13.48, 2.18], ['LFW', 'Lomé', 'Togo', 6.17, 1.25], ['COO', 'Cotonou', 'Bénin', 6.36, 2.38],
+    ['ACC', 'Accra', 'Ghana', 5.6, -0.17], ['LOS', 'Lagos', 'Nigeria', 6.58, 3.32], ['CMN', 'Casablanca', 'Maroc', 33.37, -7.59], ['RAK', 'Marrakech', 'Maroc', 31.6, -8.04],
+    ['TUN', 'Tunis', 'Tunisie', 36.85, 10.23], ['ALG', 'Alger', 'Algérie', 36.69, 3.21], ['CAI', 'Le Caire', 'Égypte', 30.12, 31.4], ['ADD', 'Addis-Abeba', 'Éthiopie', 8.98, 38.8],
+    ['NBO', 'Nairobi', 'Kenya', -1.32, 36.93], ['JNB', 'Johannesburg', 'Afrique du Sud', -26.14, 28.25], ['CDG', 'Paris Charles-de-Gaulle', 'France', 49.01, 2.55], ['ORY', 'Paris Orly', 'France', 48.72, 2.38],
+    ['LYS', 'Lyon', 'France', 45.73, 5.08], ['MRS', 'Marseille', 'France', 43.44, 5.22], ['BRU', 'Bruxelles', 'Belgique', 50.9, 4.48], ['LIS', 'Lisbonne', 'Portugal', 38.77, -9.13],
+    ['MAD', 'Madrid', 'Espagne', 40.47, -3.56], ['BCN', 'Barcelone', 'Espagne', 41.3, 2.08], ['FCO', 'Rome', 'Italie', 41.8, 12.25], ['MXP', 'Milan', 'Italie', 45.63, 8.72],
+    ['GVA', 'Genève', 'Suisse', 46.24, 6.11], ['FRA', 'Francfort', 'Allemagne', 50.03, 8.57], ['AMS', 'Amsterdam', 'Pays-Bas', 52.31, 4.76], ['LHR', 'Londres Heathrow', 'Royaume-Uni', 51.47, -0.45],
+    ['IST', 'Istanbul', 'Turquie', 41.28, 28.75], ['JFK', 'New York JFK', 'États-Unis', 40.64, -73.78], ['IAD', 'Washington Dulles', 'États-Unis', 38.95, -77.46], ['ATL', 'Atlanta', 'États-Unis', 33.64, -84.43],
+    ['YUL', 'Montréal', 'Canada', 45.47, -73.74], ['YYZ', 'Toronto', 'Canada', 43.68, -79.63], ['DXB', 'Dubaï', 'Émirats arabes unis', 25.25, 55.36], ['DOH', 'Doha', 'Qatar', 25.27, 51.61],
+    ['JED', 'Djeddah', 'Arabie saoudite', 21.68, 39.16], ['MED', 'Médine', 'Arabie saoudite', 24.55, 39.7], ['CAN', 'Canton', 'Chine', 23.39, 113.3], ['PEK', 'Pékin', 'Chine', 40.08, 116.58], ['BOM', 'Mumbai', 'Inde', 19.09, 72.87]
+  ],
+  airlines: [['AF', 'Air France'], ['AT', 'Royal Air Maroc'], ['SN', 'Brussels Airlines'], ['TK', 'Turkish Airlines'], ['KP', 'ASKY Airlines'], ['HF', 'Air Côte d’Ivoire'], ['HC', 'Air Sénégal'], ['ET', 'Ethiopian Airlines'], ['EK', 'Emirates']],
   skills: ['Enseignement', 'Santé', 'Communication', 'Logistique', 'Droit', 'Finance', 'Informatique', 'Animation', 'Couture', 'Photographie'],
 
   news: [
